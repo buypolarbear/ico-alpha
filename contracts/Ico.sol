@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import 'node_modules/zeppelin-solidity/contracts/token/StandardToken.sol';
+import 'zeppelin-solidity/contracts/token/StandardToken.sol';
 
 contract Fund is StandardToken {
   address owner;
