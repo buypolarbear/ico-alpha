@@ -13,6 +13,9 @@ contract Ico is BasicToken {
   string public constant symbol = "TODO";
   uint8 public constant decimals = 18;
 
+  // Significant digits multiplier
+  uint156 private multiplier = 10e18;
+
   // TODO: set this final, this equates to an amount
   // in dollars.
   uint256 public constant HARD_CAP = 10000 ether;
@@ -20,6 +23,9 @@ contract Ico is BasicToken {
   // Tokens issued and frozen supply to date
   uint256 public tokensIssued = 0;
   uint256 public tokensFrozen = 0;
+
+  // total dividends issued to date
+  uint256 private dividendsIssued = 0;
   // Assets under management in USD
   uint256 private aum = 0;
 
@@ -91,11 +97,32 @@ contract Ico is BasicToken {
   }
 
   /**
+   * Calculate the divends for the current period given the AUM profit
+   */
+  function setDividends(uint256 profit) onlyOwner {
+    // profit in USD
+    profit = profit.mul(multiplier);
+    uint256 newAum = aum.add(profit);
+    uint256 newTokenValue = newAum.mul(multiplier).div(tokensIssued); // 18 sig digits
+    uint256 dividends = profit.mul(multiplier).div(newTokenValue); // 18 sig digits
+
+    // make sure we have enough in the frozen fund
+    require(tokensFrozen >= dividends);
+
+    // update the tokensIssued with the previous amount of given dividends
+    tokensIssued = tokensIssued.add(dividendsIssued);
+    dividendsIssued = dividendsIssued.add(dividends);
+    tokensFrozen -= dividends;
+    aum = newAum;
+  }
+
+  /**
    * Withdraw all funds and kill fund smart contract
    */
   function liquidate() onlyOwner returns (bool) {
     selfdestruct(owner);
   }
+
 
   // getter to retrieve divident owed
   function getOwedDividend(address _owner) public view returns (uint256 balance) {
