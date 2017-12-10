@@ -70,7 +70,7 @@ contract Ico is BasicToken {
    * using tokensPerEth value.
    */
   function participate() public payable returns (bool) {
-    require (now >= icoOpen && now <= icoClose);
+    require (now >= icoStart && now <= icoEnd);
     require (msg.value != 0);
 
     uint256 ethAmount = msg.value;
