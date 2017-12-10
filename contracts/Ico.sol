@@ -1,6 +1,6 @@
 pragma solidity ^0.4.17;
 
-import 'zeppelin-solidity/contracts/token/StandardToken.sol';
+import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 
 // NOTE: BasicToken only has partial ERC20 support
 contract Ico is BasicToken {
@@ -19,15 +19,13 @@ contract Ico is BasicToken {
 
     uint mikesPremine = 16 ether;
 
-    totalSupply = SUPPLY;
     balances[owner] = SUPPLY - mikesPremine;
     balances[0x7412417A91af476C48516283B3CfA80BA6E489A8] = mikesPremine;
   }
 
   function sayHi() pure returns (string)  {
-    return "hello 3";
+    return "hello 4";
   }
-
 
   // getter to retrieve divident owed
   function getOwedDividend(address _owner) public view returns (uint256 balance) {
@@ -47,7 +45,7 @@ contract Ico is BasicToken {
 
   // monkey patches
   function balanceOf(address _owner) public view returns (uint256 balance) {
-    return BasicToken.balanceOf(_owner) + getOwedDividend(_owner);
+    return BasicToken.balanceOf(_owner).add(getOwedDividend(_owner));
   }
   function transfer(address _to, uint256 _value) addDividend() public returns (bool) {
     return BasicToken.transfer(_to, _value);
