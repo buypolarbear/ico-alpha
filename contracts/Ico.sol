@@ -13,6 +13,8 @@ contract Ico is BasicToken {
   string public constant symbol = "TODO";
   uint8 public constant decimals = 18;
 
+  // TODO: set this final, this equates to an amount
+  // in dollars.
   uint256 public constant HARD_CAP = 10000 ether;
   
   // Tokens issued and frozen supply to date
@@ -31,7 +33,7 @@ contract Ico is BasicToken {
    * ICO constructor
    * Define ICO details and contribution period
    */
-  function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) public {
+  function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) {
     require (_icoStart >= now);
     require (_icoEnd >= _icoStart);
     require (_tokensPerEth > 0);
@@ -76,7 +78,7 @@ contract Ico is BasicToken {
     uint256 ethAmount = msg.value;
     uint256 numTokens = ethAmount.mul(tokensPerEth);
 
-    require(numTokens.add(tokensIssued) < HARD_CAP);
+    require(numTokens.add(tokensIssued) <= HARD_CAP);
 
     balances[msg.sender] = balances[msg.sender].add(numTokens);
     tokensIssued = tokensIssued.add(numTokens);
@@ -91,8 +93,7 @@ contract Ico is BasicToken {
    * Withdraw all funds and kill fund smart contract
    */
   function liquidate() onlyOwner returns (bool) {
-    // todo: self destruct
-    return true;
+    selfdestruct(owner);
   }
 
   // getter to retrieve divident owed
