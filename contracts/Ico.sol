@@ -9,24 +9,43 @@ contract Ico is BasicToken {
   address[] team;
 
   // expose these for ERC20 tools
-  string public name = "TODO";
-  string public symbol = "TODO";
-  uint8 public decimals = 18;
+  string public constant name = "TODO";
+  string public constant symbol = "TODO";
+  uint8 public constant decimals = 18;
 
+  // TODO: set this final, this equates to an amount
+  // in dollars.
   uint256 public constant HARD_CAP = 10000 ether;
 
-  uint256 public AUM;
-  uint256 public tokensIssued;
-  uint256 public tokensFrozen;
+  // Tokens issued and frozen supply to date
+  uint256 public tokensIssued = 0;
+  uint256 public tokensFrozen = 0;
+  // Assets under management in USD
+  uint256 private aum = 0;
 
+  // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
 
-  uint public tokenSaleOpen;
-  uint public tokenSaleClose;
+  // Ico start/end timestamps, between which (inclusively) investments are accepted
+  uint public icoStart;
+  uint public icoEnd;
 
 
-  function Ico() {
+  /**
+   * ICO constructor
+   * Define ICO details and contribution period
+   */
+  function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) {
+    require (_icoStart >= now);
+    require (_icoEnd >= _icoStart);
+    require (_tokensPerEth > 0);
+
     owner = msg.sender;
+
+    icoStart = _icoStart;
+    icoEnd = _icoEnd;
+    tokensPerEth = _tokensPerEth;
+    team = _team;
   }
 
 
@@ -35,16 +54,6 @@ contract Ico is BasicToken {
    */
   modifier onlyOwner() {
     require (msg.sender == owner);
-    _;
-  }
-
-  modifier duringIco() {
-    require (now >= tokenSaleOpen && now < tokenSaleClose);
-    _;
-  }
-
-  modifier afterIco() {
-    require (now >= tokenSaleClose);
     _;
   }
 
@@ -58,39 +67,34 @@ contract Ico is BasicToken {
     _;
   }
 
-
-  /**
-   * Initialize contract with ICO details and set contribution period
-   */
-  function startIco(address[] _team, uint256 _tokensPerEth) onlyOwner returns (bool) {
-    // todo
-    return true;
-  }
-
   /**
    * Function allowing investors to participate in the ICO.
    * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
    * using tokensPerEth value.
    */
-  function participate() public payable duringIco returns (bool) {
-    // todo
-    return true;
-  }
+  function participate() public payable returns (bool) {
+    require (now >= icoStart && now <= icoEnd);
+    require (msg.value > 0);
 
-  /**
-   * Withdraw ICO funds from smart contract.
-   */
-  function withdraw() public onlyOwner afterIco returns (bool) {
-    // todo
+    uint256 ethAmount = msg.value;
+    uint256 numTokens = ethAmount.mul(tokensPerEth);
+
+    require(numTokens.add(tokensIssued) <= HARD_CAP);
+
+    balances[msg.sender] = balances[msg.sender].add(numTokens);
+    tokensIssued = tokensIssued.add(numTokens);
+    tokensFrozen = tokensIssued * 2;
+
+    owner.transfer(ethAmount);
+
     return true;
   }
 
   /**
    * Withdraw all funds and kill fund smart contract
    */
-  function liquidate() returns (bool) {
-    // todo: self destruct
-    return true;
+  function liquidate() onlyOwner returns (bool) {
+    selfdestruct(owner);
   }
 
   // getter to retrieve divident owed
