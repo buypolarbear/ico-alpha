@@ -82,16 +82,7 @@ contract Ico is BasicToken {
     tokensIssued += numTokens;
     tokensFrozen = tokensIssued * 2;
 
-    return true;
-  }
-
-  /**
-   * Withdraw ICO funds from smart contract.
-   */
-  function withdraw() public onlyOwner returns (bool) {
-    require (now > icoEnd);
-    
-    owner.transfer(this.balance);
+    owner.transfer(ethAmount);
 
     return true;
   }
