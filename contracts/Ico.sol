@@ -38,12 +38,12 @@ contract Ico is BasicToken {
   }
 
   modifier duringIco() {
-    require (block.number >= tokenSaleOpen && block.number <= tokenSaleClose);
+    require (now >= tokenSaleOpen && now < tokenSaleClose);
     _;
   }
 
   modifier afterIco() {
-    require (block.number > tokenSaleClose);
+    require (now >= tokenSaleClose);
     _;
   }
 
