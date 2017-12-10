@@ -1,8 +1,9 @@
 pragma solidity ^0.4.17;
 
-import 'zeppelin-solidity/contracts/token/StandardToken.sol';
+import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 
-contract Ico is StandardToken {
+// NOTE: BasicToken only has partial ERC20 support
+contract Ico is BasicToken {
 
   address owner;
   address[] team;
@@ -17,9 +18,10 @@ contract Ico is StandardToken {
   uint public tokensIssued;
   uint public tokensFrozen;
   
-  uint public tokensPerETH;
+  int public tokensPerEth;
 
-  uint public tokenSaleDeadline;
+  uint public tokenSaleOpen;
+  uint public tokenSaleClose;
 
 
   function Ico() {
@@ -35,40 +37,50 @@ contract Ico is StandardToken {
     _;
   }
 
-  modifier duringICO() {
-    require (block.number <= tokenSaleDeadline);
+  modifier duringIco() {
+    require (block.number >= tokenSaleOpen && block.number <= tokenSaleClose);
     _;
   }
 
-  modifier afterICO() {
-    require (block.number > tokenSaleDeadline);
+  modifier afterIco() {
+    require (block.number > tokenSaleClose);
+    _;
+  }
+
+  // helper function that makes sure we add dividend before any
+  // type of ledger mutation.
+  modifier addDividend() {
+    uint owedDividend = getOwedDividend(msg.sender);
+    if(owedDividend > 0) {
+      balances[msg.sender] = balances[msg.sender].add(owedDividend);
+    }
     _;
   }
 
 
   /**
-   * 
+   * Initialize contract with ICO details and set contribution period
    */
-  function create(uint _tokensPerETH, address[] _team) onlyOwner returns (bool) {
-
+  function startIco(address[] _team, uint _tokensPerEth) onlyOwner returns (bool) {
+    // todo
     return true;
   }
 
   /**
    * Function allowing investors to participate in the ICO. 
    * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
-   * using tokensPerETH value.
+   * using tokensPerEth value.
    */
-  function participate() public payable duringICO returns (bool) {
-
+  function participate() public payable duringIco returns (bool) {
+    // todo
     return true;
   }
 
   /**
    * Withdraw ICO funds from smart contract.
    */
-  function withdraw() public onlyOwner returns (bool) afterICO {
-
+  function withdraw() public onlyOwner afterIco returns (bool) {
+    // todo
     return true;
   }
 
@@ -76,8 +88,22 @@ contract Ico is StandardToken {
    * Withdraw all funds and kill fund smart contract
    */
   function liquidate() returns (bool) {
-    // self destruct
+    // todo: self destruct
     return true;
   }
-  
+
+  // getter to retrieve divident owed
+  function getOwedDividend(address _owner) public view returns (uint256 balance) {
+    // todo @ale
+    return 1 ether;
+  }
+
+  // monkey patches
+  function balanceOf(address _owner) public view returns (uint256 balance) {
+    return BasicToken.balanceOf(_owner).add(getOwedDividend(_owner));
+  }
+  function transfer(address _to, uint256 _value) addDividend() public returns (bool) {
+    return BasicToken.transfer(_to, _value);
+  }
+
 }
