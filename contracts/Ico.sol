@@ -9,17 +9,20 @@ contract Ico is BasicToken {
   address[] team;
 
   // expose these for ERC20 tools
-  string public name = "TODO";
-  string public symbol = "TODO";
-  uint8 public decimals = 18;
+  string public constant name = "TODO";
+  string public constant symbol = "TODO";
+  uint8 public constant decimals = 18;
 
   uint256 public constant HARD_CAP = 10000 ether;
   
-  uint256 public tokensIssued;
-  uint256 public tokensFrozen;
+  // Tokens issued and frozen supply to date
+  uint256 public tokensIssued = 0;
+  uint256 public tokensFrozen = 0;
   
+  // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
 
+  // Ico start/end timestamps, between which (inclusively) investments are accepted
   uint public icoStart;
   uint public icoEnd;
 
@@ -28,10 +31,10 @@ contract Ico is BasicToken {
    * ICO constructor
    * Define ICO details and contribution period
    */
-  function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) {
-    require(_icoStart >= now);
-    require(_icoEnd >= _icoStart);
-    require(_tokensPerEth > 0);
+  function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) public {
+    require (_icoStart >= now);
+    require (_icoEnd >= _icoStart);
+    require (_tokensPerEth > 0);
 
     owner = msg.sender;
     
@@ -39,9 +42,6 @@ contract Ico is BasicToken {
     icoEnd = _icoEnd;
     tokensPerEth = _tokensPerEth;
     team = _team;
-
-    tokensIssued = 0;
-    tokensFrozen = 0;
   }
 
 
@@ -71,7 +71,17 @@ contract Ico is BasicToken {
    */
   function participate() public payable returns (bool) {
     require (now >= icoOpen && now <= icoClose);
-    // todo
+    require (msg.value != 0);
+
+    uint256 ethAmount = msg.value;
+    uint256 numTokens = ethAmount * tokensPerEth;
+
+    require(numTokens + tokensIssued < HARD_CAP);
+
+    balances[msg.sender] += numTokens;
+    tokensIssued += numTokens;
+    tokensFrozen = tokensIssued * 2;
+
     return true;
   }
 
@@ -80,14 +90,16 @@ contract Ico is BasicToken {
    */
   function withdraw() public onlyOwner returns (bool) {
     require (now > icoEnd);
-    // todo
+    
+    owner.transfer(this.balance);
+
     return true;
   }
 
   /**
    * Withdraw all funds and kill fund smart contract
    */
-  function liquidate() returns (bool) {
+  function liquidate() onlyOwner returns (bool) {
     // todo: self destruct
     return true;
   }
