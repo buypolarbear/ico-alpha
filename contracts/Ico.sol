@@ -61,13 +61,14 @@ contract Ico is StandardToken {
    */
   function participate() public payable duringICO returns (bool) {
 
+    return true;
   }
 
   /**
    * Withdraw ICO funds from smart contract.
    */
   function withdraw() public onlyOwner returns (bool) afterICO {
-    
+
     return true;
   }
 
