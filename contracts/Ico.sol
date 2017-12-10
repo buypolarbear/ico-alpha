@@ -11,14 +11,14 @@ contract Ico is BasicToken {
   // expose these for ERC20 tools
   string public name = "TODO";
   string public symbol = "TODO";
-  uint public decimals = 18;
+  uint8 public decimals = 18;
 
-  uint public constant HARD_CAP = 10000;
+  uint256 public constant HARD_CAP = 10000 ether;
   
-  uint public tokensIssued;
-  uint public tokensFrozen;
+  uint256 public tokensIssued;
+  uint256 public tokensFrozen;
   
-  int public tokensPerEth;
+  uint256 public tokensPerEth;
 
   uint public tokenSaleOpen;
   uint public tokenSaleClose;
@@ -50,7 +50,7 @@ contract Ico is BasicToken {
   // helper function that makes sure we add dividend before any
   // type of ledger mutation.
   modifier addDividend() {
-    uint owedDividend = getOwedDividend(msg.sender);
+    uint256 owedDividend = getOwedDividend(msg.sender);
     if(owedDividend > 0) {
       balances[msg.sender] = balances[msg.sender].add(owedDividend);
     }
@@ -61,7 +61,7 @@ contract Ico is BasicToken {
   /**
    * Initialize contract with ICO details and set contribution period
    */
-  function startIco(address[] _team, uint _tokensPerEth) onlyOwner returns (bool) {
+  function startIco(address[] _team, uint256 _tokensPerEth) onlyOwner returns (bool) {
     // todo
     return true;
   }
