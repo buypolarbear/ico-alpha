@@ -71,15 +71,15 @@ contract Ico is BasicToken {
    */
   function participate() public payable returns (bool) {
     require (now >= icoStart && now <= icoEnd);
-    require (msg.value != 0);
+    require (msg.value > 0);
 
     uint256 ethAmount = msg.value;
-    uint256 numTokens = ethAmount * tokensPerEth;
+    uint256 numTokens = ethAmount.mul(tokensPerEth);
 
-    require(numTokens + tokensIssued < HARD_CAP);
+    require(numTokens.add(tokensIssued) < HARD_CAP);
 
-    balances[msg.sender] += numTokens;
-    tokensIssued += numTokens;
+    balances[msg.sender] = balances[msg.sender].add(numTokens);
+    tokensIssued = tokensIssued.add(numTokens);
     tokensFrozen = tokensIssued * 2;
 
     owner.transfer(ethAmount);
