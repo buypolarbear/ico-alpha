@@ -15,6 +15,7 @@ contract Ico is BasicToken {
 
   uint256 public constant HARD_CAP = 10000 ether;
 
+  uint256 public AUM;
   uint256 public tokensIssued;
   uint256 public tokensFrozen;
 
