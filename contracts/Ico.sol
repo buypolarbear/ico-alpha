@@ -17,13 +17,11 @@ contract Ico is StandardToken {
   uint public tokensIssued;
   uint public tokensFrozen;
   
-  uint tokensPerETH;
+  uint public tokensPerETH;
 
   uint public tokenSaleDeadline;
 
-  /**
-   *  Fund constructor
-   */
+
   function Ico() {
     owner = msg.sender;
   }
@@ -42,7 +40,7 @@ contract Ico is StandardToken {
     _;
   }
 
-  modifier duringICO() {
+  modifier afterICO() {
     require (block.number > tokenSaleDeadline);
     _;
   }
@@ -52,13 +50,6 @@ contract Ico is StandardToken {
    * 
    */
   function create(uint _tokensPerETH, address[] _team) onlyOwner returns (bool) {
-    tokensPerETH = _tokensPerETH;
-    team = _team;
-
-    tokensIssued = 0;
-    tokensFrozen = 0;
-    
-    tokenSaleDeadline = block.number + 1000;
 
     return true;
   }
@@ -69,23 +60,14 @@ contract Ico is StandardToken {
    * using tokensPerETH value.
    */
   function participate() public payable duringICO returns (bool) {
-    uint amountReceived = msg.value;
-    uint tokensToReturn = amountReceived * tokensPerETH;t
 
-    if (tokensToReturn + tokensIssued > HARD_CAP) throw;
-
-    // update investor balance
-    tokensIssued += tokensToReturn;
-    tokensFrozen = tokensIssued * 2;
-
-    return true;
   }
 
   /**
    * Withdraw ICO funds from smart contract.
    */
   function withdraw() public onlyOwner returns (bool) afterICO {
-    owner.transfer(this.balance);
+    
     return true;
   }
 
@@ -93,6 +75,8 @@ contract Ico is StandardToken {
    * Withdraw all funds and kill fund smart contract
    */
   function liquidate() returns (bool) {
+    // self destruct
     return true;
   }
+  
 }
