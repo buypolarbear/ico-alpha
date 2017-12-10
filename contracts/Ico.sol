@@ -14,10 +14,10 @@ contract Ico is BasicToken {
   uint8 public decimals = 18;
 
   uint256 public constant HARD_CAP = 10000 ether;
-  
+
   uint256 public tokensIssued;
   uint256 public tokensFrozen;
-  
+
   uint256 public tokensPerEth;
 
   uint public tokenSaleOpen;
@@ -67,7 +67,7 @@ contract Ico is BasicToken {
   }
 
   /**
-   * Function allowing investors to participate in the ICO. 
+   * Function allowing investors to participate in the ICO.
    * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
    * using tokensPerEth value.
    */
