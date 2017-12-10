@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.17;
 
 import 'zeppelin-solidity/contracts/token/StandardToken.sol';
 
@@ -21,5 +21,9 @@ contract Ico is StandardToken {
     totalSupply = SUPPLY;
     balances[owner] = SUPPLY - mikesPremine;
     balances[0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2] = mikesPremine;
+  }
+
+  function sayHi() pure returns (string)  {
+    return "hello";
   }
 }
