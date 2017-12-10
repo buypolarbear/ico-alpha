@@ -20,12 +20,28 @@ contract Ico is BasicToken {
   
   uint256 public tokensPerEth;
 
-  uint public tokenSaleOpen;
-  uint public tokenSaleClose;
+  uint public icoStart;
+  uint public icoEnd;
 
 
-  function Ico() {
+  /**
+   * ICO constructor
+   * Define ICO details and contribution period
+   */
+  function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) {
+    require(_icoStart >= now);
+    require(_icoEnd >= _icoStart);
+    require(_tokensPerEth > 0);
+
     owner = msg.sender;
+    
+    icoStart = _icoStart;
+    icoEnd = _icoEnd;
+    tokensPerEth = _tokensPerEth;
+    team = _team;
+
+    tokensIssued = 0;
+    tokensFrozen = 0;
   }
 
 
@@ -34,16 +50,6 @@ contract Ico is BasicToken {
    */
   modifier onlyOwner() {
     require (msg.sender == owner);
-    _;
-  }
-
-  modifier duringIco() {
-    require (now >= tokenSaleOpen && now < tokenSaleClose);
-    _;
-  }
-
-  modifier afterIco() {
-    require (now >= tokenSaleClose);
     _;
   }
 
@@ -59,19 +65,12 @@ contract Ico is BasicToken {
 
 
   /**
-   * Initialize contract with ICO details and set contribution period
-   */
-  function startIco(address[] _team, uint256 _tokensPerEth) onlyOwner returns (bool) {
-    // todo
-    return true;
-  }
-
-  /**
    * Function allowing investors to participate in the ICO. 
    * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
    * using tokensPerEth value.
    */
-  function participate() public payable duringIco returns (bool) {
+  function participate() public payable returns (bool) {
+    require (now >= icoOpen && now <= icoClose);
     // todo
     return true;
   }
@@ -79,7 +78,8 @@ contract Ico is BasicToken {
   /**
    * Withdraw ICO funds from smart contract.
    */
-  function withdraw() public onlyOwner afterIco returns (bool) {
+  function withdraw() public onlyOwner returns (bool) {
+    require (now > icoEnd);
     // todo
     return true;
   }
