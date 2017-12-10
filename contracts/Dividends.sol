@@ -12,15 +12,16 @@ contract Dividends is StandardToken {
 
 
   uint public tokensIssued = 10000 ether;
-  uint public tokensFrozen = holdings * 3;
+  uint public tokensFrozen = tokensIssued * 3;
 
-  function Dividends() {
+  function Dividends() public {
     owner = msg.sender;
   }
 
-  function calculateDividends(uint256 profit) {
+  function calculate(uint256 profit) public returns (uint256) {
     // profit in finney
     uint256 totalDividends = tokensIssued * (profit / 2);
     uint256 airdrop = totalDividends / ((tokensIssued + totalDividends) / totalDividends);
+    return airdrop * 3;
   }
 }
