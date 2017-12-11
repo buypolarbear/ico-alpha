@@ -144,13 +144,12 @@ contract Ico is BasicToken {
     uint idx = lastDividend[_owner];
     if (idx == dividendSnapshots.length) return balance;
 
-    uint256 divided = 0;
     uint256 currBalance = balance;
     for (uint i = idx; i < dividendSnapshots.length; i++) {
-      uint256 currDividend = dividendSnapshots[i];
+      // DividendSnapshot currDividend = dividendSnapshots[i];
       // We should be able to remove the .mul(multiplier) and .div(multiplier) and apply them once
       // at the beginning and once at the end, but we need to math it out
-      dividend += prevBalance.mul(multiplier).div(currDividend.tokensIssued).mul(currDividend.dividendsIssued).div(multiplier);
+      dividend += currBalance.mul(multiplier).div(dividendSnapshots[i].tokensIssued).mul(dividendSnapshots[i].dividendsIssued).div(multiplier);
       currBalance = balance + dividend;
     }
 
