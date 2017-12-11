@@ -112,10 +112,11 @@ contract Ico is BasicToken {
    */
   function setDividends(uint256 profit) public onlyOwner {
     // profit in USD
+    // We only care about 50% of this, as the rest is reinvested right away
     profit = profit.mul(multiplier);
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(multiplier).div(tokensIssued); // 18 sig digits
-    uint256 dividendsIssued = profit.mul(multiplier).div(newTokenValue); // 18 sig digits
+    uint256 dividendsIssued = profit.div(2).mul(multiplier).div(newTokenValue); // 18 sig digits
 
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= dividendsIssued);
