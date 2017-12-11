@@ -48,6 +48,8 @@ contract Ico is BasicToken {
   uint public icoStart;
   uint public icoEnd;
 
+  // custom events
+  event Burn(address indexed from, uint256 value);
 
   /**
    * ICO constructor
@@ -107,6 +109,15 @@ contract Ico is BasicToken {
 
     owner.transfer(ethAmount);
 
+    return true;
+  }
+
+  function burn(uint256 _value) returns (bool) {
+    require(_value <= balances[msg.sender]);
+
+    // SafeMath.sub will throw if there is not enough balance.
+    balances[msg.sender] = balances[msg.sender].sub(_value);
+    Burn(msg.sender, _value);
     return true;
   }
 
