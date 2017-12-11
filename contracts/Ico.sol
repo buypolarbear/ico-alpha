@@ -24,8 +24,17 @@ contract Ico is BasicToken {
   uint256 public tokensIssued = 0;
   uint256 public tokensFrozen = 0;
 
-  // total dividends issued to date
-  uint256 private dividendsIssued = 0;
+  // struct representing a dividends snapshot
+  struct DividendSnapshot {
+    uint256 tokensIssued;
+    uint256 dividendsIssued;
+  }
+  // An array of all the DividendSnapshot so far
+  DividendSnapshot[] dividendSnapshots;
+
+  // Mapping of user to the index of the last dividend that was awarded to zhie
+  mapping(address => uint) lastDividend;
+
   // Assets under management in USD
   uint256 private aum = 0;
 
@@ -111,9 +120,10 @@ contract Ico is BasicToken {
 
     // update the tokensIssued with the previous amount of given dividends
     tokensIssued = tokensIssued.add(dividendsIssued);
-    dividendsIssued = dividendsIssued.add(dividends);
-    tokensFrozen -= dividends;
+    tokensFrozen = tokenFrozen.sub(dividends);
     aum = newAum;
+
+    dividendSnapshots.push(DividendSnapshot(tokensIssued, dividendsIssued));
   }
 
   /**
