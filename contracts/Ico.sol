@@ -14,7 +14,7 @@ contract Ico is BasicToken {
   uint8 public constant decimals = 18;
 
   // Significant digits multiplier
-  uint156 private multiplier = 10e18;
+  uint256 private multiplier = 10e18;
 
   // TODO: set this final, this equates to an amount
   // in dollars.
@@ -108,19 +108,19 @@ contract Ico is BasicToken {
   /**
    * Calculate the divends for the current period given the AUM profit
    */
-  function setDividends(uint256 profit) onlyOwner {
+  function setDividends(uint256 profit) public onlyOwner {
     // profit in USD
     profit = profit.mul(multiplier);
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(multiplier).div(tokensIssued); // 18 sig digits
-    uint256 dividends = profit.mul(multiplier).div(newTokenValue); // 18 sig digits
+    uint256 dividendsIssued = profit.mul(multiplier).div(newTokenValue); // 18 sig digits
 
     // make sure we have enough in the frozen fund
-    require(tokensFrozen >= dividends);
+    require(tokensFrozen >= dividendsIssued);
 
     // update the tokensIssued with the previous amount of given dividends
     tokensIssued = tokensIssued.add(dividendsIssued);
-    tokensFrozen = tokenFrozen.sub(dividends);
+    tokensFrozen = tokensFrozen.sub(dividendsIssued);
     aum = newAum;
 
     dividendSnapshots.push(DividendSnapshot(tokensIssued, dividendsIssued));
@@ -129,7 +129,7 @@ contract Ico is BasicToken {
   /**
    * Withdraw all funds and kill fund smart contract
    */
-  function liquidate() onlyOwner returns (bool) {
+  function liquidate() public onlyOwner returns (bool) {
     selfdestruct(owner);
   }
 
