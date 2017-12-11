@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "moment": "^2.19.3",
     "zeppelin-solidity": "^1.4.0"
   }
 }
