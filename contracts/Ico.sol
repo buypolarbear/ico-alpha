@@ -118,6 +118,7 @@ contract Ico is BasicToken {
 
     // SafeMath.sub will throw if there is not enough balance.
     balances[msg.sender] = balances[msg.sender].sub(_value);
+    tokensIssued = tokensIssued.sub(_value);
     Burn(msg.sender, _value);
     return true;
   }
