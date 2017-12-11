@@ -136,8 +136,19 @@ contract Ico is BasicToken {
 
   // getter to retrieve divident owed
   function getOwedDividend(address _owner) public view returns (uint256 balance) {
-    // todo @ale
-    return 1 ether;
+    // retrieve index of last dividend this address received
+    uint idx = lastDividend[_owner];
+    // And their current balance
+    uint256 balance = BasicToken.balanceOf(_owner);
+
+    for (uint i = idx; i < dividendSnapshots; i++) {
+      uint256 currDividend = dividendSnapshots[i];
+      // We should be able to remove the .mul(multiplier) and .div(multiplier) and apply them once
+      // at the beginning and once at the end, but we need to math it out
+      balance += balance.mul(multiplier).div(currDividend.tokensIssued).mul(currDividend.dividendsIssued).div(multiplier);
+    }
+
+    return balance;
   }
 
   // monkey patches
