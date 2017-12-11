@@ -112,7 +112,7 @@ contract Ico is BasicToken {
     return true;
   }
 
-  function burn(uint256 _value) returns (bool) {
+  function burn(uint256 _value) public returns (bool) {
     require(_value <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
