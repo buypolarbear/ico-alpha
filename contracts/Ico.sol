@@ -50,6 +50,7 @@ contract Ico is BasicToken {
 
   // custom events
   event Burn(address indexed from, uint256 value);
+  event Participate(address indexed from, uint256 value);
 
   /**
    * ICO constructor
@@ -108,7 +109,7 @@ contract Ico is BasicToken {
     tokensFrozen = tokensIssued * 2;
 
     owner.transfer(ethAmount);
-
+    Participate(msg.sender, numTokens);
     return true;
   }
 
