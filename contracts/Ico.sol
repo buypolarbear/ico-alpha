@@ -76,8 +76,9 @@ contract Ico is BasicToken {
   // type of ledger mutation.
   modifier addDividend() {
     uint256 owedDividend = getOwedDividend(msg.sender);
-    if(owedDividend > BasicToken.balanceOf(msg.sender)) {
+    if(owedDividend > 0) {
       balances[msg.sender] = balances[msg.sender].add(owedDividend);
+      lastDividend[msg.sender] = dividendSnapshots.length;
     }
     _;
   }
