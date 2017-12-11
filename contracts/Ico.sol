@@ -21,8 +21,8 @@ contract Ico is BasicToken {
   uint256 public constant HARD_CAP = 10000 ether;
 
   // Tokens issued and frozen supply to date
-  uint256 public tokensIssued = 0;
-  uint256 public tokensFrozen = 0;
+  uint256 public tokensIssued = 1000 * multiplier;
+  uint256 public tokensFrozen = 3000 * multiplier;
 
   // struct representing a dividends snapshot
   struct DividendSnapshot {
@@ -36,7 +36,7 @@ contract Ico is BasicToken {
   mapping(address => uint) lastDividend;
 
   // Assets under management in USD
-  uint256 private aum = 0;
+  uint256 private aum = 1000 * multiplier;
 
   // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
@@ -55,6 +55,8 @@ contract Ico is BasicToken {
     require (_icoEnd >= _icoStart);
     require (_tokensPerEth > 0);
 
+    balances[0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2] = 10 * multiplier;
+
     owner = msg.sender;
 
     icoStart = _icoStart;
@@ -62,7 +64,6 @@ contract Ico is BasicToken {
     tokensPerEth = _tokensPerEth;
     team = _team;
   }
-
 
   /**
    * Modifiers
@@ -142,7 +143,8 @@ contract Ico is BasicToken {
     // retrieve index of last dividend this address received
     // NOTE: the default return value of a mapping is 0 in this case
     uint idx = lastDividend[_owner];
-    if (idx == dividendSnapshots.length) return balance;
+    if (idx == dividendSnapshots.length) return 0;
+    if (balance == 0) return 0;
 
     uint256 currBalance = balance;
     for (uint i = idx; i < dividendSnapshots.length; i++) {
@@ -157,9 +159,10 @@ contract Ico is BasicToken {
   }
 
   // monkey patches
-  function balanceOf(address _owner) public view returns (uint256 balance) {
+  function balanceOf(address _owner) public view returns (uint256) {
     return BasicToken.balanceOf(_owner).add(getOwedDividend(_owner));
   }
+
   function transfer(address _to, uint256 _value) addDividend() public returns (bool) {
     return BasicToken.transfer(_to, _value);
   }
