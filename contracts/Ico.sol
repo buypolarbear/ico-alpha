@@ -21,8 +21,8 @@ contract Ico is BasicToken {
   uint256 public constant HARD_CAP = 10000 ether;
 
   // Tokens issued and frozen supply to date
-  uint256 public tokensIssued = 1000 * multiplier;
-  uint256 public tokensFrozen = 3000 * multiplier;
+  uint256 public tokensIssued = 3000 * multiplier;
+  uint256 public tokensFrozen = 18000 * multiplier;
 
   // struct representing a dividends snapshot
   struct DividendSnapshot {
@@ -36,7 +36,7 @@ contract Ico is BasicToken {
   mapping(address => uint) lastDividend;
 
   // Assets under management in USD
-  uint256 private aum = 1000 * multiplier;
+  uint256 private aum = 6000 * multiplier;
 
   // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
@@ -55,7 +55,7 @@ contract Ico is BasicToken {
     require (_icoEnd >= _icoStart);
     require (_tokensPerEth > 0);
 
-    balances[0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2] = 10 * multiplier;
+    balances[0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2] = 100 * multiplier;
 
     owner = msg.sender;
 
@@ -120,12 +120,13 @@ contract Ico is BasicToken {
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= dividendsIssued);
 
+    dividendSnapshots.push(DividendSnapshot(tokensIssued, dividendsIssued));
+
     // add the previous amount of given dividends to the tokensIssued
     tokensIssued = tokensIssued.add(dividendsIssued);
     tokensFrozen = tokensFrozen.sub(dividendsIssued);
     aum = newAum;
 
-    dividendSnapshots.push(DividendSnapshot(tokensIssued, dividendsIssued));
   }
 
   /**
@@ -148,7 +149,6 @@ contract Ico is BasicToken {
 
     uint256 currBalance = balance;
     for (uint i = idx; i < dividendSnapshots.length; i++) {
-      // DividendSnapshot currDividend = dividendSnapshots[i];
       // We should be able to remove the .mul(multiplier) and .div(multiplier) and apply them once
       // at the beginning and once at the end, but we need to math it out
       dividend += currBalance.mul(multiplier).div(dividendSnapshots[i].tokensIssued).mul(dividendSnapshots[i].dividendsIssued).div(multiplier);
