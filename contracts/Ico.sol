@@ -76,7 +76,7 @@ contract Ico is BasicToken {
   // type of ledger mutation.
   modifier addDividend() {
     uint256 owedDividend = getOwedDividend(msg.sender);
-    if(owedDividend > 0) {
+    if(owedDividend > BasicToken.balanceOf(msg.sender)) {
       balances[msg.sender] = balances[msg.sender].add(owedDividend);
     }
     _;
@@ -118,7 +118,7 @@ contract Ico is BasicToken {
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= dividendsIssued);
 
-    // update the tokensIssued with the previous amount of given dividends
+    // add the previous amount of given dividends to the tokensIssued
     tokensIssued = tokensIssued.add(dividendsIssued);
     tokensFrozen = tokensFrozen.sub(dividendsIssued);
     aum = newAum;
@@ -135,20 +135,25 @@ contract Ico is BasicToken {
 
 
   // getter to retrieve divident owed
-  function getOwedDividend(address _owner) public view returns (uint256 balance) {
-    // retrieve index of last dividend this address received
-    uint idx = lastDividend[_owner];
-    // And their current balance
+  function getOwedDividend(address _owner) public view returns (uint256 dividend) {
+    // And the address' current balance
     uint256 balance = BasicToken.balanceOf(_owner);
+    // retrieve index of last dividend this address received
+    // NOTE: the default return value of a mapping is 0 in this case
+    uint idx = lastDividend[_owner];
+    if (idx == dividendSnapshots.length) return balance;
 
-    for (uint i = idx; i < dividendSnapshots; i++) {
+    uint256 divided = 0;
+    uint256 currBalance = balance;
+    for (uint i = idx; i < dividendSnapshots.length; i++) {
       uint256 currDividend = dividendSnapshots[i];
       // We should be able to remove the .mul(multiplier) and .div(multiplier) and apply them once
       // at the beginning and once at the end, but we need to math it out
-      balance += balance.mul(multiplier).div(currDividend.tokensIssued).mul(currDividend.dividendsIssued).div(multiplier);
+      dividend += prevBalance.mul(multiplier).div(currDividend.tokensIssued).mul(currDividend.dividendsIssued).div(multiplier);
+      currBalance = balance + dividend;
     }
 
-    return balance;
+    return dividend;
   }
 
   // monkey patches
