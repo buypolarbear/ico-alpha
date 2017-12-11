@@ -13,4 +13,7 @@ This repo holds the smart contract that governs the fund.
 - [ ] Add dividend functionality
   - [x] Calculate how much tokens to distribute as dividends
   - [ ] Register new dividend period with added tokens + token supply (including burned tokens)
-- [ ] Add function to burn tokens (will only be used by us when the fund buys all remaning "on sale "tokens)
+  - [ ] Implement pure helper that traverses all divididend periods to figure out owed dividends
+- [x] Add function to burn tokens (will only be used by us when the fund buys all remaning "on sale "tokens)
+  - [x] Burn
+  - [ ] Subtract from global token supply
