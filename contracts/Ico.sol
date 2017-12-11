@@ -18,11 +18,11 @@ contract Ico is BasicToken {
 
   // TODO: set this final, this equates to an amount
   // in dollars.
-  uint256 public constant HARD_CAP = 10000 ether;
+  uint256 public constant HARD_CAP = 40000 ether;
 
   // Tokens issued and frozen supply to date
-  uint256 public tokensIssued = 3000 * multiplier;
-  uint256 public tokensFrozen = 18000 * multiplier;
+  uint256 public tokensIssued = 20000 * multiplier;
+  uint256 public tokensFrozen = 40000 * multiplier;
 
   // struct representing a dividends snapshot
   struct DividendSnapshot {
@@ -36,7 +36,7 @@ contract Ico is BasicToken {
   mapping(address => uint) lastDividend;
 
   // Assets under management in USD
-  uint256 private aum = 6000 * multiplier;
+  uint256 private aum = 20000 * multiplier;
 
   // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
@@ -113,10 +113,10 @@ contract Ico is BasicToken {
   function setDividends(uint256 profit) public onlyOwner {
     // profit in USD
     // We only care about 50% of this, as the rest is reinvested right away
-    profit = profit.mul(multiplier);
+    profit = profit.mul(multiplier).div(2);
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(multiplier).div(tokensIssued); // 18 sig digits
-    uint256 dividendsIssued = profit.div(2).mul(multiplier).div(newTokenValue); // 18 sig digits
+    uint256 dividendsIssued = profit.mul(multiplier).div(newTokenValue); // 18 sig digits
 
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= dividendsIssued);
