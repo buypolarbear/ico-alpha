@@ -9,8 +9,8 @@ contract Ico is BasicToken {
   address[] team;
 
   // expose these for ERC20 tools
-  string public constant name = "TODO";
-  string public constant symbol = "TODO";
+  string public constant name = "LUNA";
+  string public constant symbol = "LUNA";
   uint8 public constant decimals = 18;
 
   // TODO: set this final, this equates to an amount
