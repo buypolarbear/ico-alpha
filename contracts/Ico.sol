@@ -126,6 +126,8 @@ contract Ico is BasicToken {
     // add the previous amount of given dividends to the tokensIssued
     tokensIssued = tokensIssued.add(dividendsIssued);
     tokensFrozen = tokensFrozen.sub(dividendsIssued);
+    // NOTE: this is a temporary AUM, as the drip happens and the dividends
+    //  are unsold, we need to adjust this value.
     aum = newAum;
 
   }
