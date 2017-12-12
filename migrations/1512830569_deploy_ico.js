@@ -10,7 +10,8 @@ module.exports = function(deployer) {
   // `candy maple cake sugar pudding cream honey rich smooth crumble sweet treat`
   const team = [
     '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-    '0xf17f52151ebef6c7334fad080c5704d77216b732'
+    '0xf17f52151ebef6c7334fad080c5704d77216b732',
+    '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2'
   ];
 
   // this should be USD/ETH rate
