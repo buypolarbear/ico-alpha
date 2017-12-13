@@ -113,10 +113,10 @@ contract Ico is BasicToken {
   /**
    * Calculate the divends for the current period given the AUM profit
    */
-  function setDividends(uint256 profit) public onlyOwner {
+  function setDividends(uint256 totalProfit) public onlyOwner {
     // profit in USD
     // We only care about 50% of this, as the rest is reinvested right away
-    profit = profit.mul(tokenPrecision).div(2);
+    uint256 profit = totalProfit.mul(tokenPrecision).div(2);
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
     uint256 dividendsIssued = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
