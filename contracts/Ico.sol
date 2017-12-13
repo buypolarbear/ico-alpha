@@ -167,6 +167,7 @@ contract Ico is BasicToken {
       // at the beginning and once at the end, but we need to math it out
       dividend += currBalance.mul(multiplier).div(dividendSnapshots[i].tokensIssued).mul(dividendSnapshots[i].dividendsIssued).div(multiplier);
 
+      // Add the management dividends in equal parts if the current address is part of the team
       if (team[_owner] == true) {
         dividend += dividendSnapshots[i].managementDividends.div(teamNum);
       }
