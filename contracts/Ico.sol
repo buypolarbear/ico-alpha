@@ -13,16 +13,18 @@ contract Ico is BasicToken {
   string public constant symbol = "LUNA";
   uint8 public constant decimals = 18;
 
-  // Significant digits multiplier
-  uint256 private multiplier = 10e18;
+  // Significant digits tokenPrecision
+  uint256 private tokenPrecision = 10e18;
 
   // TODO: set this final, this equates to an amount
   // in dollars.
-  uint256 public constant HARD_CAP = 40000 ether;
+  uint256 public HARD_CAP = 10000 * tokenPrecision;
 
   // Tokens issued and frozen supply to date
-  uint256 public tokensIssued = 20000 * multiplier;
-  uint256 public tokensFrozen = 40000 * multiplier;
+  // uint256 public tokensIssued = 0;
+  uint256 public tokensIssued = 20000 * tokenPrecision; // NOTE: for testing only, uncomment above line
+  // uint256 public tokensFrozen = 0;
+  uint256 public tokensFrozen = 40000 * tokenPrecision; // NOTE: for testing only, uncomment above line
 
   // struct representing a dividends snapshot
   struct DividendSnapshot {
@@ -36,7 +38,7 @@ contract Ico is BasicToken {
   mapping(address => uint) lastDividend;
 
   // Assets under management in USD
-  uint256 private aum = 20000 * multiplier;
+  uint256 private aum = 20000 * tokenPrecision;
 
   // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
@@ -55,7 +57,7 @@ contract Ico is BasicToken {
     require (_icoEnd >= _icoStart);
     require (_tokensPerEth > 0);
 
-    balances[0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2] = 100 * multiplier;
+    balances[0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2] = 100 * tokenPrecision;
 
     owner = msg.sender;
 
@@ -113,10 +115,10 @@ contract Ico is BasicToken {
   function setDividends(uint256 profit) public onlyOwner {
     // profit in USD
     // We only care about 50% of this, as the rest is reinvested right away
-    profit = profit.mul(multiplier).div(2);
+    profit = profit.mul(tokenPrecision).div(2);
     uint256 newAum = aum.add(profit);
-    uint256 newTokenValue = newAum.mul(multiplier).div(tokensIssued); // 18 sig digits
-    uint256 dividendsIssued = profit.mul(multiplier).div(newTokenValue); // 18 sig digits
+    uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
+    uint256 dividendsIssued = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
 
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= dividendsIssued);
@@ -152,9 +154,9 @@ contract Ico is BasicToken {
 
     uint256 currBalance = balance;
     for (uint i = idx; i < dividendSnapshots.length; i++) {
-      // We should be able to remove the .mul(multiplier) and .div(multiplier) and apply them once
+      // We should be able to remove the .mul(tokenPrecision) and .div(tokenPrecision) and apply them once
       // at the beginning and once at the end, but we need to math it out
-      dividend += currBalance.mul(multiplier).div(dividendSnapshots[i].tokensIssued).mul(dividendSnapshots[i].dividendsIssued).div(multiplier);
+      dividend += currBalance.mul(tokenPrecision).div(dividendSnapshots[i].tokensIssued).mul(dividendSnapshots[i].dividendsIssued).div(tokenPrecision);
       currBalance = balance + dividend;
     }
 
