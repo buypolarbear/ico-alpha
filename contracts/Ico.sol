@@ -35,10 +35,11 @@ contract Ico is BasicToken {
   DividendSnapshot[] dividendSnapshots;
 
   // Mapping of user to the index of the last dividend that was awarded to zhie
-  mapping(address => uint) lastDividend;
+  mapping(address => uint8) lastDividend;
 
   // Assets under management in USD
-  uint256 private aum = 20000 * tokenPrecision;
+  // uint256 private aum = 0;
+  uint256 private aum = 20000 * tokenPrecision; // NOTE: for testing only, uncomment above line
 
   // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
