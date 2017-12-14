@@ -84,17 +84,6 @@ contract Ico is BasicToken {
     _;
   }
 
-  // helper function that makes sure we add dividend before any
-  // type of ledger mutation.
-  modifier addDividend() {
-    uint256 owedDividend = getOwedDividend(msg.sender);
-    if(owedDividend > 0) {
-      balances[msg.sender] = balances[msg.sender].add(owedDividend);
-      lastDividend[msg.sender] = dividendSnapshots.length;
-    }
-    _;
-  }
-
   /**
    * Function allowing investors to participate in the ICO.
    * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
@@ -192,8 +181,25 @@ contract Ico is BasicToken {
     return BasicToken.balanceOf(_owner).add(getOwedDividend(_owner));
   }
 
-  function transfer(address _to, uint256 _value) addDividend() public returns (bool) {
-    return BasicToken.transfer(_to, _value);
+
+  // Reconcile all outstanding dividends for an address
+  // into it's balance.
+  function reconcileDividend(address _owner) internal {
+    // the sender might have had outstanding balances
+    uint256 owedDividend = getOwedDividend(_owner);
+
+    if(owedDividend > 0) {
+      balances[_owner] = balances[_owner].add(owedDividend);
+    }
+
+    // register this user as being owed no further dividends
+    lastDividend[_owner] = dividendSnapshots.length;
+  }
+
+  function transfer(address _to, uint256 _amount) public returns (bool) {
+    reconcileDividend(msg.sender);
+    reconcileDividend(_to);
+    return BasicToken.transfer(_to, _amount);
   }
 
 }
