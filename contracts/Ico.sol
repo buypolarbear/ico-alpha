@@ -124,15 +124,20 @@ contract Ico is BasicToken {
     // SafeMath.sub will throw if there is not enough balance.
     balances[msg.sender] = balances[msg.sender].sub(_value);
     tokensIssued = tokensIssued.sub(_value);
+
+    uint256 tokenValue = aum.mul(tokenPrecision).div(tokensIssued);
+    aum -= tokenValue * _value;
+
     Burn(msg.sender, _value);
     return true;
   }
 
   /**
    * Calculate the divends for the current period given the AUM profit
+   *
+   * @param totalProfit is the amount of total profit in USD.
    */
   function setDividends(uint256 totalProfit) public onlyOwner {
-    // profit in USD
     // We only care about 50% of this, as the rest is reinvested right away
     uint256 profit = totalProfit.mul(tokenPrecision).div(2);
     uint256 newAum = aum.add(profit);
