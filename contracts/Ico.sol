@@ -6,7 +6,7 @@ import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 contract Ico is BasicToken {
 
   address owner;
-  uint teamNum;
+  uint8 teamNum;
   mapping(address => bool) team;
 
   // expose these for ERC20 tools
