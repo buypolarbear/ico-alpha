@@ -48,6 +48,11 @@ contract Ico is BasicToken {
   uint public icoStart;
   uint public icoEnd;
 
+  uint public icoEnd;
+
+  // drip percent in 100 / percentage
+  uint256 public dripRate = 50;
+
   // custom events
   event Burn(address indexed from, uint256 value);
   event Participate(address indexed from, uint256 value);
@@ -137,9 +142,40 @@ contract Ico is BasicToken {
    *
    * @param totalProfit is the amount of total profit in USD.
    */
-  function setDividends(uint256 totalProfit) public onlyOwner {
-    // We only care about 50% of this, as the rest is reinvested right away
-    uint256 profit = totalProfit.mul(tokenPrecision).div(2);
+  function reportProfit(int256 totalProfit, address saleAddress) public onlyTeam returns (bool) {
+
+    // only add new dividends if this period was profitable
+    if(totalProfit > 0) {
+      // We only care about 50% of this, as the rest is reinvested right away
+      uint256 profit = totalProfit.mul(tokenPrecision).div(2);
+
+      // this will throw if there are not enough tokens
+      addNewDividends(profit);
+    }
+
+    // this will throw if there are not enough tokens
+    drip(saleAddress);
+
+    return true;
+  }
+
+
+  function drip(address saleAddress) internal {
+    uint256 dripTokens = tokensFrozen.div(dripRate);
+
+    // make sure we have enough in the frozen fund
+    require(tokensFrozen >= dripTokens);
+
+    tokensFrozen -= dripTokens;
+    balances[saleAddress] += dripTokens;
+  }
+
+  /**
+   * Calculate the divends for the current period given the dividend
+   * amounts (USD * tokenPrecision).
+   */
+  function addNewDividends(uint256 profit) internal {
+    
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
     uint256 dividendsIssued = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
@@ -155,7 +191,6 @@ contract Ico is BasicToken {
     // NOTE: this is a temporary AUM, as the drip happens and the dividends
     //  are unsold, we need to adjust this value.
     aum = newAum;
-
   }
 
   /**
