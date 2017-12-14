@@ -48,8 +48,6 @@ contract Ico is BasicToken {
   uint public icoStart;
   uint public icoEnd;
 
-  uint public icoEnd;
-
   // drip percent in 100 / percentage
   uint256 public dripRate = 50;
 
