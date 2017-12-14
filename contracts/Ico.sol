@@ -79,6 +79,11 @@ contract Ico is BasicToken {
     _;
   }
 
+  modifier ownlyTeam() {
+    require (team[msg.sender] == true);
+    _;
+  }
+
   // helper function that makes sure we add dividend before any
   // type of ledger mutation.
   modifier addDividend() {
@@ -113,7 +118,7 @@ contract Ico is BasicToken {
     return true;
   }
 
-  function burn(uint256 _value) public returns (bool) {
+  function burn(uint256 _value) public ownlyTeam returns (bool) {
     require(_value <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
