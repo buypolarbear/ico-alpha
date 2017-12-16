@@ -124,6 +124,11 @@ contract Ico is BasicToken {
      participate(msg.sender);
   }
 
+  /**
+   * Internal burn function, only callable by team
+   *
+   * @param _amount is the amount of tokens to burn.
+   */
   function burn(uint256 _amount) public onlyTeam returns (bool) {
     require(_amount <= balances[msg.sender]);
 
