@@ -98,11 +98,14 @@ contract Ico is BasicToken {
   }
 
   /**
+   *
    * Function allowing investors to participate in the ICO.
+   * Specifying the beneficiary will change who will receive the tokens.
    * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
    * using tokensPerEth value.
    */
-  function participate() public payable returns (bool) {
+  function participate(address beneficiary) public payable {
+    require (beneficiary != address(0));
     require (now >= icoStart && now <= icoEnd);
     require (msg.value > 0);
 
@@ -111,13 +114,20 @@ contract Ico is BasicToken {
 
     require(numTokens.add(tokensIssued) <= HARD_CAP);
 
-    balances[msg.sender] = balances[msg.sender].add(numTokens);
+    balances[beneficiary] = balances[beneficiary].add(numTokens);
     tokensIssued = tokensIssued.add(numTokens);
     tokensFrozen = tokensIssued * 2;
 
     owner.transfer(ethAmount);
-    Participate(msg.sender, numTokens);
-    return true;
+    Participate(beneficiary, numTokens);
+  }
+
+  /**
+   *
+   * We fallback to the partcipate function
+   */
+  function () external payable {
+     participate(msg.sender);
   }
 
   function burn(uint256 _amount) public onlyTeam returns (bool) {
