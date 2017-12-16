@@ -19,13 +19,11 @@ contract Ico is BasicToken {
 
   // TODO: set this final, this equates to an amount
   // in dollars.
-  uint256 public HARD_CAP = 10000 * tokenPrecision;
+  uint256 public hardCap = 10000 * tokenPrecision;
 
   // Tokens issued and frozen supply to date
-  // uint256 public tokensIssued = 0;
-  uint256 public tokensIssued = 20000 * tokenPrecision; // NOTE: for testing only, uncomment above line
-  // uint256 public tokensFrozen = 0;
-  uint256 public tokensFrozen = 40000 * tokenPrecision; // NOTE: for testing only, uncomment above line
+  uint256 public tokensIssued = 0;
+  uint256 public tokensFrozen = 0;
 
   // struct representing a dividends snapshot
   struct DividendSnapshot {
@@ -43,8 +41,7 @@ contract Ico is BasicToken {
   uint256 managementFees = 10;
 
   // Assets under management in USD
-  // uint256 private aum = 0;
-  uint256 private aum = 20000 * tokenPrecision; // NOTE: for testing only, uncomment above line
+  uint256 private aum = 0;
 
   // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
@@ -112,7 +109,7 @@ contract Ico is BasicToken {
     uint256 ethAmount = msg.value;
     uint256 numTokens = ethAmount.mul(tokensPerEth);
 
-    require(numTokens.add(tokensIssued) <= HARD_CAP);
+    require(numTokens.add(tokensIssued) <= hardCap);
 
     balances[beneficiary] = balances[beneficiary].add(numTokens);
     tokensIssued = tokensIssued.add(numTokens);
