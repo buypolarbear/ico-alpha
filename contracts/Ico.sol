@@ -92,7 +92,7 @@ contract Ico is BasicToken {
     _;
   }
 
-  modifier ownlyTeam() {
+  modifier onlyTeam() {
     require (team[msg.sender] == true);
     _;
   }
@@ -120,7 +120,7 @@ contract Ico is BasicToken {
     return true;
   }
 
-  function burn(uint256 _amount) public ownlyTeam returns (bool) {
+  function burn(uint256 _amount) public onlyTeam returns (bool) {
     require(_amount <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
