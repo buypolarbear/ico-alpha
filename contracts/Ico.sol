@@ -4,7 +4,6 @@ import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 
 // NOTE: BasicToken only has partial ERC20 support
 contract Ico is BasicToken {
-
   address owner;
   uint8 teamNum;
   mapping(address => bool) team;
@@ -15,11 +14,11 @@ contract Ico is BasicToken {
   uint8 public constant decimals = 18;
 
   // Significant digits tokenPrecision
-  uint256 private tokenPrecision = 10e17;
+  uint256 private constant tokenPrecision = 10e17;
 
   // TODO: set this final, this equates to an amount
   // in dollars.
-  uint256 public hardCap = 10000 * tokenPrecision;
+  uint256 public constant hardCap = 10000 * tokenPrecision;
 
   // Tokens issued and frozen supply to date
   uint256 public tokensIssued = 0;
@@ -38,7 +37,7 @@ contract Ico is BasicToken {
   mapping(address => uint8) lastDividend;
 
   // Management fees share express as 100/%: eg. 20% => 100/20 = 5
-  uint256 managementFees = 10;
+  uint256 public constant managementFees = 10;
 
   // Assets under management in USD
   uint256 private aum = 0;
@@ -65,8 +64,6 @@ contract Ico is BasicToken {
     require (_icoStart >= now);
     require (_icoEnd >= _icoStart);
     require (_tokensPerEth > 0);
-
-    balances[0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2] = 100 * tokenPrecision;
 
     owner = msg.sender;
 
