@@ -121,17 +121,17 @@ contract Ico is BasicToken {
     return true;
   }
 
-  function burn(uint256 _value) public ownlyTeam returns (bool) {
-    require(_value <= balances[msg.sender]);
+  function burn(uint256 _amount) public ownlyTeam returns (bool) {
+    require(_amount <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
-    balances[msg.sender] = balances[msg.sender].sub(_value);
-    tokensIssued = tokensIssued.sub(_value);
+    balances[msg.sender] = balances[msg.sender].sub(_amount);
+    tokensIssued = tokensIssued.sub(_amount);
 
     uint256 tokenValue = aum.mul(tokenPrecision).div(tokensIssued);
-    aum -= tokenValue * _value;
+    aum -= tokenValue * _amount;
 
-    Burn(msg.sender, _value);
+    Burn(msg.sender, _amount);
     return true;
   }
 
