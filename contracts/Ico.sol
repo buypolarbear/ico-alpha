@@ -53,6 +53,9 @@ contract Ico is BasicToken {
   uint public icoStart;
   uint public icoEnd;
 
+  // drip percent in 100 / percentage
+  uint256 public dripRate = 50;
+
   // custom events
   event Burn(address indexed from, uint256 value);
   event Participate(address indexed from, uint256 value);
@@ -89,17 +92,20 @@ contract Ico is BasicToken {
     _;
   }
 
-  modifier ownlyTeam() {
+  modifier onlyTeam() {
     require (team[msg.sender] == true);
     _;
   }
 
   /**
+   *
    * Function allowing investors to participate in the ICO.
+   * Specifying the beneficiary will change who will receive the tokens.
    * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
    * using tokensPerEth value.
    */
-  function participate() public payable returns (bool) {
+  function participate(address beneficiary) public payable {
+    require (beneficiary != address(0));
     require (now >= icoStart && now <= icoEnd);
     require (msg.value > 0);
 
@@ -108,26 +114,33 @@ contract Ico is BasicToken {
 
     require(numTokens.add(tokensIssued) <= HARD_CAP);
 
-    balances[msg.sender] = balances[msg.sender].add(numTokens);
+    balances[beneficiary] = balances[beneficiary].add(numTokens);
     tokensIssued = tokensIssued.add(numTokens);
     tokensFrozen = tokensIssued * 2;
 
     owner.transfer(ethAmount);
-    Participate(msg.sender, numTokens);
-    return true;
+    Participate(beneficiary, numTokens);
   }
 
-  function burn(uint256 _value) public ownlyTeam returns (bool) {
-    require(_value <= balances[msg.sender]);
+  /**
+   *
+   * We fallback to the partcipate function
+   */
+  function () external payable {
+     participate(msg.sender);
+  }
+
+  function burn(uint256 _amount) public onlyTeam returns (bool) {
+    require(_amount <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
-    balances[msg.sender] = balances[msg.sender].sub(_value);
-    tokensIssued = tokensIssued.sub(_value);
+    balances[msg.sender] = balances[msg.sender].sub(_amount);
+    tokensIssued = tokensIssued.sub(_amount);
 
     uint256 tokenValue = aum.mul(tokenPrecision).div(tokensIssued);
-    aum -= tokenValue * _value;
+    aum -= tokenValue * _amount;
 
-    Burn(msg.sender, _value);
+    Burn(msg.sender, _amount);
     return true;
   }
 
@@ -136,9 +149,40 @@ contract Ico is BasicToken {
    *
    * @param totalProfit is the amount of total profit in USD.
    */
-  function setDividends(uint256 totalProfit) public onlyOwner {
-    // We only care about 50% of this, as the rest is reinvested right away
-    uint256 profit = totalProfit.mul(tokenPrecision).div(2);
+  function reportProfit(int256 totalProfit, address saleAddress) public onlyTeam returns (bool) {
+
+    // only add new dividends if this period was profitable
+    if(totalProfit > 0) {
+      // We only care about 50% of this, as the rest is reinvested right away
+      uint256 profit = uint256(totalProfit).mul(tokenPrecision).div(2);
+
+      // this will throw if there are not enough tokens
+      addNewDividends(profit);
+    }
+
+    // this will throw if there are not enough tokens
+    drip(saleAddress);
+
+    return true;
+  }
+
+
+  function drip(address saleAddress) internal {
+    uint256 dripTokens = tokensFrozen.div(dripRate);
+
+    // make sure we have enough in the frozen fund
+    require(tokensFrozen >= dripTokens);
+
+    tokensFrozen -= dripTokens;
+    balances[saleAddress] += dripTokens;
+  }
+
+  /**
+   * Calculate the divends for the current period given the dividend
+   * amounts (USD * tokenPrecision).
+   */
+  function addNewDividends(uint256 profit) internal {
+    
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
     uint256 totalDividends = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
