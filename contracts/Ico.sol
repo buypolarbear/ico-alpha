@@ -137,7 +137,7 @@ contract Ico is BasicToken {
     tokensIssued = tokensIssued.sub(_amount);
 
     uint256 tokenValue = aum.mul(tokenPrecision).div(tokensIssued);
-    aum -= tokenValue * _amount;
+    aum = aum.sub(tokenValue.mul(_amount));
 
     Burn(msg.sender, _amount);
     return true;
@@ -149,8 +149,10 @@ contract Ico is BasicToken {
    * @param totalProfit is the amount of total profit in USD.
    */
   function reportProfit(int256 totalProfit, address saleAddress) public onlyTeam returns (bool) {
+    // first we drip
+    drip(saleAddress);
 
-    // only add new dividends if this period was profitable
+    // then we only add new dividends if this period was profitable
     if(totalProfit > 0) {
       // We only care about 50% of this, as the rest is reinvested right away
       uint256 profit = uint256(totalProfit).mul(tokenPrecision).div(2);
@@ -159,9 +161,6 @@ contract Ico is BasicToken {
       addNewDividends(profit);
     }
 
-    // this will throw if there are not enough tokens
-    drip(saleAddress);
-
     return true;
   }
 
@@ -169,11 +168,8 @@ contract Ico is BasicToken {
   function drip(address saleAddress) internal {
     uint256 dripTokens = tokensFrozen.div(dripRate);
 
-    // make sure we have enough in the frozen fund
-    require(tokensFrozen >= dripTokens);
-
-    tokensFrozen -= dripTokens;
-    balances[saleAddress] += dripTokens;
+    tokensFrozen = tokensFrozen.sub(dripTokens);
+    balances[saleAddress] = balances[saleAddress].add(dripTokens);
   }
 
   /**
@@ -186,7 +182,7 @@ contract Ico is BasicToken {
     uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
     uint256 totalDividends = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
     uint256 managementDividends = totalDividends.div(managementFees);
-    uint256 dividendsIssued = totalDividends - managementDividends;
+    uint256 dividendsIssued = totalDividends.sub(managementDividends);
 
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= totalDividends);
@@ -196,8 +192,6 @@ contract Ico is BasicToken {
     // add the previous amount of given dividends to the tokensIssued
     tokensIssued = tokensIssued.add(totalDividends);
     tokensFrozen = tokensFrozen.sub(totalDividends);
-    // NOTE: this is a temporary AUM, as the drip happens and the dividends
-    //  are unsold, we need to adjust this value.
     aum = newAum.add(profit);
   }
 
