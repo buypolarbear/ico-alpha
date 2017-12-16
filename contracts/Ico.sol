@@ -79,7 +79,7 @@ contract Ico is BasicToken {
     tokensPerEth = _tokensPerEth;
 
     // initialize the team mapping with true when part of the team
-    teamNum = _team.length;
+    teamNum = uint8(_team.length);
     for (uint i = 0; i < teamNum; i++) {
       team[_team[i]] = true;
     }
@@ -244,7 +244,7 @@ contract Ico is BasicToken {
     }
 
     // register this user as being owed no further dividends
-    lastDividend[_owner] = dividendSnapshots.length;
+    lastDividend[_owner] = uint8(dividendSnapshots.length);
   }
 
   function transfer(address _to, uint256 _amount) public returns (bool) {
