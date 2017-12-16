@@ -6,7 +6,8 @@ import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 contract Ico is BasicToken {
 
   address owner;
-  address[] team;
+  uint8 teamNum;
+  mapping(address => bool) team;
 
   // expose these for ERC20 tools
   string public constant name = "LUNA";
@@ -30,12 +31,16 @@ contract Ico is BasicToken {
   struct DividendSnapshot {
     uint256 tokensIssued;
     uint256 dividendsIssued;
+    uint256 managementDividends;
   }
   // An array of all the DividendSnapshot so far
   DividendSnapshot[] dividendSnapshots;
 
   // Mapping of user to the index of the last dividend that was awarded to zhie
   mapping(address => uint8) lastDividend;
+
+  // Management fees share express as 100/%: eg. 20% => 100/20 = 5
+  uint256 managementFees = 10;
 
   // Assets under management in USD
   // uint256 private aum = 0;
@@ -68,7 +73,12 @@ contract Ico is BasicToken {
     icoStart = _icoStart;
     icoEnd = _icoEnd;
     tokensPerEth = _tokensPerEth;
-    team = _team;
+
+    // initialize the team mapping with true when part of the team
+    teamNum = _team.length;
+    for (uint i = 0; i < teamNum; i++) {
+      team[_team[i]] = true;
+    }
   }
 
   /**
@@ -142,20 +152,21 @@ contract Ico is BasicToken {
     uint256 profit = totalProfit.mul(tokenPrecision).div(2);
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
-    uint256 dividendsIssued = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
+    uint256 totalDividends = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
+    uint256 managementDividends = totalDividends.div(managementFees);
+    uint256 dividendsIssued = totalDividends - managementDividends;
 
     // make sure we have enough in the frozen fund
-    require(tokensFrozen >= dividendsIssued);
+    require(tokensFrozen >= totalDividends);
 
-    dividendSnapshots.push(DividendSnapshot(tokensIssued, dividendsIssued));
+    dividendSnapshots.push(DividendSnapshot(tokensIssued, dividendsIssued, managementDividends));
 
     // add the previous amount of given dividends to the tokensIssued
-    tokensIssued = tokensIssued.add(dividendsIssued);
-    tokensFrozen = tokensFrozen.sub(dividendsIssued);
+    tokensIssued = tokensIssued.add(totalDividends);
+    tokensFrozen = tokensFrozen.sub(totalDividends);
     // NOTE: this is a temporary AUM, as the drip happens and the dividends
     //  are unsold, we need to adjust this value.
-    aum = newAum;
-
+    aum = newAum.add(profit);
   }
 
   /**
@@ -181,6 +192,12 @@ contract Ico is BasicToken {
       // We should be able to remove the .mul(tokenPrecision) and .div(tokenPrecision) and apply them once
       // at the beginning and once at the end, but we need to math it out
       dividend += currBalance.mul(tokenPrecision).div(dividendSnapshots[i].tokensIssued).mul(dividendSnapshots[i].dividendsIssued).div(tokenPrecision);
+
+      // Add the management dividends in equal parts if the current address is part of the team
+      if (team[_owner] == true) {
+        dividend += dividendSnapshots[i].managementDividends.div(teamNum);
+      }
+
       currBalance = balance + dividend;
     }
 
