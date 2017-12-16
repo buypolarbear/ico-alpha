@@ -15,7 +15,7 @@ contract Ico is BasicToken {
   uint8 public constant decimals = 18;
 
   // Significant digits tokenPrecision
-  uint256 private tokenPrecision = 10e18;
+  uint256 private tokenPrecision = 10e17;
 
   // TODO: set this final, this equates to an amount
   // in dollars.
