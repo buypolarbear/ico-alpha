@@ -3,8 +3,8 @@ const Ico = artifacts.require('Ico')
 
 module.exports = function(deployer) {
 
-  const start = moment().add(1, 'minute').unix();
-  const end = moment().add(10, 'minute').unix();
+  const start = moment().unix();
+  const end = moment().add(1000, 'minute').unix();
 
   // first two accounts of mnemonic:
   // `candy maple cake sugar pudding cream honey rich smooth crumble sweet treat`
