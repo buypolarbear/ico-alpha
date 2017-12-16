@@ -4,7 +4,6 @@ import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 
 // NOTE: BasicToken only has partial ERC20 support
 contract Ico is BasicToken {
-  using SafeMath for int256;
 
   address owner;
   uint8 teamNum;
@@ -145,7 +144,7 @@ contract Ico is BasicToken {
     // only add new dividends if this period was profitable
     if(totalProfit > 0) {
       // We only care about 50% of this, as the rest is reinvested right away
-      uint256 profit = totalProfit.mul(tokenPrecision).div(2);
+      uint256 profit = uint256(totalProfit).mul(tokenPrecision).div(2);
 
       // this will throw if there are not enough tokens
       addNewDividends(profit);
