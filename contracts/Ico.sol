@@ -4,6 +4,7 @@ import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 
 // NOTE: BasicToken only has partial ERC20 support
 contract Ico is BasicToken {
+  using SafeMath for int256;
 
   address owner;
   uint8 teamNum;
