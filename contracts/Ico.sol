@@ -61,7 +61,7 @@ contract Ico is BasicToken {
    * Define ICO details and contribution period
    */
   function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) public {
-    require (_icoStart >= now);
+    // require (_icoStart >= now);
     require (_icoEnd >= _icoStart);
     require (_tokensPerEth > 0);
 
