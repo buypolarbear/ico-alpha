@@ -5,7 +5,7 @@ import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 // NOTE: BasicToken only has partial ERC20 support
 contract Ico is BasicToken {
   address owner;
-  uint8 teamNum;
+  uint256 public teamNum;
   mapping(address => bool) team;
 
   // expose these for ERC20 tools
@@ -34,7 +34,7 @@ contract Ico is BasicToken {
   DividendSnapshot[] dividendSnapshots;
 
   // Mapping of user to the index of the last dividend that was awarded to zhie
-  mapping(address => uint8) lastDividend;
+  mapping(address => uint256) lastDividend;
 
   // Management fees share express as 100/%: eg. 20% => 100/20 = 5
   uint256 public constant managementFees = 20;
@@ -72,8 +72,8 @@ contract Ico is BasicToken {
     tokensPerEth = _tokensPerEth;
 
     // initialize the team mapping with true when part of the team
-    teamNum = uint8(_team.length);
-    for (uint i = 0; i < teamNum; i++) {
+    teamNum = _team.length;
+    for (uint256 i = 0; i < teamNum; i++) {
       team[_team[i]] = true;
     }
   }
@@ -161,6 +161,8 @@ contract Ico is BasicToken {
 
     // then we drip
     drip(saleAddress);
+    // adjust AUM
+    aum = aum.add(profit);
 
     return true;
   }
@@ -192,7 +194,6 @@ contract Ico is BasicToken {
     // add the previous amount of given dividends to the tokensIssued
     tokensIssued = tokensIssued.add(totalDividends);
     tokensFrozen = tokensFrozen.sub(totalDividends);
-    aum = newAum.add(profit);
   }
 
   /**
@@ -246,7 +247,7 @@ contract Ico is BasicToken {
     }
 
     // register this user as being owed no further dividends
-    lastDividend[_owner] = uint8(dividendSnapshots.length);
+    lastDividend[_owner] = dividendSnapshots.length;
   }
 
   function transfer(address _to, uint256 _amount) public returns (bool) {
