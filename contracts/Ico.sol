@@ -229,47 +229,54 @@ contract Ico is BasicToken {
 
 
   // getter to retrieve divident owed
-  function getOwedDividend(address _owner, bool emit) public view returns (uint256 dividend) {
+  function getOwedDividend(address _owner) public view returns (uint256 total, uint256[] dividends) {
     // And the address' current balance
     uint256 balance = BasicToken.balanceOf(_owner);
     // retrieve index of last dividend this address received
     // NOTE: the default return value of a mapping is 0 in this case
     uint idx = lastDividend[_owner];
-    if (idx == dividendSnapshots.length) return 0;
-    if (balance == 0 && team[_owner] != true) return 0;
+    if (idx == dividendSnapshots.length) return (total, dividends);
+    if (balance == 0 && team[_owner] != true) return (total, dividends);
 
     uint256 currBalance = balance;
     for (uint i = idx; i < dividendSnapshots.length; i++) {
       // We should be able to remove the .mul(tokenPrecision) and .div(tokenPrecision) and apply them once
       // at the beginning and once at the end, but we need to math it out
-      dividend += currBalance.mul(tokenPrecision).div(dividendSnapshots[i].totalSupply).mul(dividendSnapshots[i].dividendsIssued).div(tokenPrecision);
+      uint256 dividend = currBalance.mul(tokenPrecision).div(dividendSnapshots[i].totalSupply).mul(dividendSnapshots[i].dividendsIssued).div(tokenPrecision);
 
       // Add the management dividends in equal parts if the current address is part of the team
       if (team[_owner] == true) {
-        dividend += dividendSnapshots[i].managementDividends.div(teamNum);
+        dividend = dividend.add(dividendSnapshots[i].managementDividends.div(teamNum));
       }
+
+      total = total.add(dividend);
 
       // If we can emit, broadcast ReconcileDividend event
-      if (emit == true) {
-        ReconcileDividend(_owner, i, dividend);
-      }
+      dividends[i - idx] = dividend;
 
-      currBalance = balance + dividend;
+      currBalance = currBalance.add(dividend);
     }
 
-    return dividend;
+    return (total, dividends);
   }
 
   // monkey patches
   function balanceOf(address _owner) public view returns (uint256) {
-    return BasicToken.balanceOf(_owner).add(getOwedDividend(_owner, false));
+    var (owedDividend, dividends) = getOwedDividend(_owner);
+    return BasicToken.balanceOf(_owner).add(owedDividend);
   }
 
 
   // Reconcile all outstanding dividends for an address
   // into it's balance.
   function reconcileDividend(address _owner) internal {
-    uint256 owedDividend = getOwedDividend(_owner, true);
+    var (owedDividend, dividends) = getOwedDividend(_owner);
+
+    for (uint i = 0; i < dividends.length; i++) {
+      if (dividends[i] > 0) {
+        ReconcileDividend(_owner, lastDividend[_owner] + i, dividends[i]);
+      }
+    }
 
     if(owedDividend > 0) {
       balances[_owner] = balances[_owner].add(owedDividend);
