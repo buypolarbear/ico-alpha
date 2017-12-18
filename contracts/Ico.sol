@@ -224,7 +224,7 @@ contract Ico is BasicToken {
   /**
    * Withdraw all funds and kill fund smart contract
    */
-  function liquidate() public onlyOwner returns (bool) {
+  function liquidate() public onlyTeam returns (bool) {
     selfdestruct(owner);
   }
 
