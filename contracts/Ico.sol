@@ -115,7 +115,11 @@ contract Ico is BasicToken {
     aum = tokensIssued;
 
     owner.transfer(ethAmount);
+    // Our own custom event to monitor ICO participation
     Participate(beneficiary, numTokens);
+
+    // Let ERC20 tools know of token hodlers
+    Transfer(0x0, beneficiary, numTokens);
   }
 
   /**
