@@ -18,7 +18,7 @@ contract Ico is BasicToken {
 
   // TODO: set this final, this equates to an amount
   // in dollars.
-  uint256 public constant hardCap = 10000 * tokenPrecision;
+  uint256 public constant hardCap = 17000 * tokenPrecision;
 
   // Tokens issued and frozen supply to date
   uint256 public tokensIssued = 0;
@@ -37,7 +37,7 @@ contract Ico is BasicToken {
   mapping(address => uint8) lastDividend;
 
   // Management fees share express as 100/%: eg. 20% => 100/20 = 5
-  uint256 public constant managementFees = 10;
+  uint256 public constant managementFees = 20;
 
   // Assets under management in USD
   uint256 private aum = 0;
@@ -149,9 +149,6 @@ contract Ico is BasicToken {
    * @param totalProfit is the amount of total profit in USD.
    */
   function reportProfit(int256 totalProfit, address saleAddress) public onlyTeam returns (bool) {
-    // first we drip
-    drip(saleAddress);
-
     // then we only add new dividends if this period was profitable
     if(totalProfit > 0) {
       // We only care about 50% of this, as the rest is reinvested right away
@@ -160,6 +157,9 @@ contract Ico is BasicToken {
       // this will throw if there are not enough tokens
       addNewDividends(profit);
     }
+
+    // first we drip
+    drip(saleAddress);
 
     return true;
   }
@@ -177,7 +177,6 @@ contract Ico is BasicToken {
    * amounts (USD * tokenPrecision).
    */
   function addNewDividends(uint256 profit) internal {
-    
     uint256 newAum = aum.add(profit);
     uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
     uint256 totalDividends = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
