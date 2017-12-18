@@ -39,7 +39,7 @@ contract Ico is BasicToken {
   uint256 public constant managementFees = 10;
 
   // Assets under management in USD
-  uint256 private aum = 0;
+  uint256 public aum = 0;
 
   // number of tokens investors will receive per eth invested
   uint256 public tokensPerEth;
