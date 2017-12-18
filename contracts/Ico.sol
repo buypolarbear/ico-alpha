@@ -55,6 +55,7 @@ contract Ico is BasicToken {
   // custom events
   event Burn(address indexed from, uint256 value);
   event Participate(address indexed from, uint256 value);
+  event ReconcileDividend(address indexed from, uint256 period, uint256 value);
 
   /**
    * ICO constructor
@@ -207,7 +208,7 @@ contract Ico is BasicToken {
 
 
   // getter to retrieve divident owed
-  function getOwedDividend(address _owner) public view returns (uint256 dividend) {
+  function getOwedDividend(address _owner, bool emit) public view returns (uint256 dividend) {
     // And the address' current balance
     uint256 balance = BasicToken.balanceOf(_owner);
     // retrieve index of last dividend this address received
@@ -227,6 +228,11 @@ contract Ico is BasicToken {
         dividend += dividendSnapshots[i].managementDividends.div(teamNum);
       }
 
+      // If we can emit, broadcast ReconcileDividend event
+      if (emit == true) {
+        ReconcileDividend(_owner, i, dividend);
+      }
+
       currBalance = balance + dividend;
     }
 
@@ -235,14 +241,14 @@ contract Ico is BasicToken {
 
   // monkey patches
   function balanceOf(address _owner) public view returns (uint256) {
-    return BasicToken.balanceOf(_owner).add(getOwedDividend(_owner));
+    return BasicToken.balanceOf(_owner).add(getOwedDividend(_owner, false));
   }
 
 
   // Reconcile all outstanding dividends for an address
   // into it's balance.
   function reconcileDividend(address _owner) internal {
-    uint256 owedDividend = getOwedDividend(_owner);
+    uint256 owedDividend = getOwedDividend(_owner, true);
 
     if(owedDividend > 0) {
       balances[_owner] = balances[_owner].add(owedDividend);
