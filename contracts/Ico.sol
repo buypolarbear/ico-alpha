@@ -229,15 +229,17 @@ contract Ico is BasicToken {
 
 
   // getter to retrieve divident owed
-  function getOwedDividend(address _owner) public view returns (uint256 total, uint256[] dividends) {
+  function getOwedDividend(address _owner) public view returns (uint256 total, uint256[]) {
+    uint256[] memory noDividends = new uint256[](0);
     // And the address' current balance
     uint256 balance = BasicToken.balanceOf(_owner);
     // retrieve index of last dividend this address received
     // NOTE: the default return value of a mapping is 0 in this case
     uint idx = lastDividend[_owner];
-    if (idx == dividendSnapshots.length) return (total, dividends);
-    if (balance == 0 && team[_owner] != true) return (total, dividends);
+    if (idx == dividendSnapshots.length) return (total, noDividends);
+    if (balance == 0 && team[_owner] != true) return (total, noDividends);
 
+    uint256[] memory dividends = new uint256[](dividendSnapshots.length - idx - i);
     uint256 currBalance = balance;
     for (uint i = idx; i < dividendSnapshots.length; i++) {
       // We should be able to remove the .mul(tokenPrecision) and .div(tokenPrecision) and apply them once
