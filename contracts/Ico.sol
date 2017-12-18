@@ -147,6 +147,7 @@ contract Ico is BasicToken {
    * @param _amount is the amount of tokens to burn.
    */
   function freeze(uint256 _amount) public onlySaleAddress returns (bool) {
+    reconcileDividend(msg.sender);
     require(_amount <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
@@ -154,7 +155,7 @@ contract Ico is BasicToken {
     totalSupply = totalSupply.sub(_amount);
     tokensFrozen = tokensFrozen.add(_amount);
 
-    aum = aum.sub(tokenValue.mul(_amount));
+    aum = aum.sub(tokenValue.mul(_amount).div(tokenPrecision));
 
     Freeze(msg.sender, _amount);
     return true;
@@ -193,7 +194,7 @@ contract Ico is BasicToken {
 
     tokensFrozen = tokensFrozen.sub(dripTokens);
     totalSupply = totalSupply.add(dripTokens);
-    aum = aum.add(tokenValue.mul(dripTokens));
+    aum = aum.add(tokenValue.mul(dripTokens).div(tokenPrecision));
 
     reconcileDividend(saleAddress);
     balances[saleAddress] = balances[saleAddress].add(dripTokens);
