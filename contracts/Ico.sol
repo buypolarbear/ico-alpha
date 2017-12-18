@@ -111,6 +111,7 @@ contract Ico is BasicToken {
     balances[beneficiary] = balances[beneficiary].add(numTokens);
     tokensIssued = tokensIssued.add(numTokens);
     tokensFrozen = tokensIssued * 2;
+    aum = tokensIssued;
 
     owner.transfer(ethAmount);
     Participate(beneficiary, numTokens);
