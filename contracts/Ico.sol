@@ -20,13 +20,12 @@ contract Ico is BasicToken {
   // in dollars.
   uint256 public constant hardCap = 17000 * tokenPrecision;
 
-  // Tokens issued and frozen supply to date
-  uint256 public tokensIssued = 0;
+  // Tokens frozen supply
   uint256 public tokensFrozen = 0;
 
   // struct representing a dividends snapshot
   struct DividendSnapshot {
-    uint256 tokensIssued;
+    uint256 totalSupply;
     uint256 dividendsIssued;
     uint256 managementDividends;
   }
@@ -107,17 +106,16 @@ contract Ico is BasicToken {
     uint256 ethAmount = msg.value;
     uint256 numTokens = ethAmount.mul(tokensPerEth);
 
-    require(numTokens.add(tokensIssued) <= hardCap);
+    require(totalSupply.add(numTokens) <= hardCap);
 
     balances[beneficiary] = balances[beneficiary].add(numTokens);
-    tokensIssued = tokensIssued.add(numTokens);
-    tokensFrozen = tokensIssued * 2;
-    aum = tokensIssued;
+    totalSupply = totalSupply.add(numTokens);
+    tokensFrozen = totalSupply * 2;
+    aum = totalSupply;
 
     owner.transfer(ethAmount);
     // Our own custom event to monitor ICO participation
     Participate(beneficiary, numTokens);
-
     // Let ERC20 tools know of token hodlers
     Transfer(0x0, beneficiary, numTokens);
   }
@@ -140,9 +138,9 @@ contract Ico is BasicToken {
 
     // SafeMath.sub will throw if there is not enough balance.
     balances[msg.sender] = balances[msg.sender].sub(_amount);
-    tokensIssued = tokensIssued.sub(_amount);
+    totalSupply = totalSupply.sub(_amount);
 
-    uint256 tokenValue = aum.mul(tokenPrecision).div(tokensIssued);
+    uint256 tokenValue = aum.mul(tokenPrecision).div(totalSupply);
     aum = aum.sub(tokenValue.mul(_amount));
 
     Burn(msg.sender, _amount);
@@ -177,7 +175,7 @@ contract Ico is BasicToken {
     uint256 dripTokens = tokensFrozen.div(dripRate);
 
     tokensFrozen = tokensFrozen.sub(dripTokens);
-    tokensIssued = tokensIssued.add(dripTokens);
+    totalSupply = totalSupply.add(dripTokens);
     reconcileDividend(saleAddress);
     balances[saleAddress] = balances[saleAddress].add(dripTokens);
   }
@@ -188,7 +186,7 @@ contract Ico is BasicToken {
    */
   function addNewDividends(uint256 profit) internal {
     uint256 newAum = aum.add(profit); // 18 sig digits
-    uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
+    uint256 newTokenValue = newAum.mul(tokenPrecision).div(totalSupply); // 18 sig digits
     uint256 totalDividends = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
     uint256 managementDividends = totalDividends.div(managementFees); // 17 sig digits
     uint256 dividendsIssued = totalDividends.sub(managementDividends); // 18 sig digits
@@ -196,10 +194,10 @@ contract Ico is BasicToken {
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= totalDividends);
 
-    dividendSnapshots.push(DividendSnapshot(tokensIssued, dividendsIssued, managementDividends));
+    dividendSnapshots.push(DividendSnapshot(totalSupply, dividendsIssued, managementDividends));
 
-    // add the previous amount of given dividends to the tokensIssued
-    tokensIssued = tokensIssued.add(totalDividends);
+    // add the previous amount of given dividends to the totalSupply
+    totalSupply = totalSupply.add(totalDividends);
     tokensFrozen = tokensFrozen.sub(totalDividends);
   }
 
@@ -225,7 +223,7 @@ contract Ico is BasicToken {
     for (uint i = idx; i < dividendSnapshots.length; i++) {
       // We should be able to remove the .mul(tokenPrecision) and .div(tokenPrecision) and apply them once
       // at the beginning and once at the end, but we need to math it out
-      dividend += currBalance.mul(tokenPrecision).div(dividendSnapshots[i].tokensIssued).mul(dividendSnapshots[i].dividendsIssued).div(tokenPrecision);
+      dividend += currBalance.mul(tokenPrecision).div(dividendSnapshots[i].totalSupply).mul(dividendSnapshots[i].dividendsIssued).div(tokenPrecision);
 
       // Add the management dividends in equal parts if the current address is part of the team
       if (team[_owner] == true) {
