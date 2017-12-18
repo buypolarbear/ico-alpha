@@ -23,6 +23,8 @@ contract Ico is BasicToken {
   // Tokens frozen supply
   uint256 public tokensFrozen = 0;
 
+  uint256 public tokenValue = 1 * tokenPrecision;
+
   // struct representing a dividends snapshot
   struct DividendSnapshot {
     uint256 totalSupply;
@@ -150,8 +152,8 @@ contract Ico is BasicToken {
     // SafeMath.sub will throw if there is not enough balance.
     balances[msg.sender] = balances[msg.sender].sub(_amount);
     totalSupply = totalSupply.sub(_amount);
+    tokensFrozen = tokensFrozen.add(_amount);
 
-    uint256 tokenValue = aum.mul(tokenPrecision).div(totalSupply);
     aum = aum.sub(tokenValue.mul(_amount));
 
     Freeze(msg.sender, _amount);
@@ -175,6 +177,7 @@ contract Ico is BasicToken {
 
     // then we drip
     drip(saleAddress);
+
     // adjust AUM
     aum = aum.add(uint256(totalProfit).mul(tokenPrecision));
 
@@ -190,6 +193,7 @@ contract Ico is BasicToken {
 
     tokensFrozen = tokensFrozen.sub(dripTokens);
     totalSupply = totalSupply.add(dripTokens);
+    aum = aum.add(tokenValue.mul(dripTokens));
 
     reconcileDividend(saleAddress);
     balances[saleAddress] = balances[saleAddress].add(dripTokens);
@@ -201,8 +205,8 @@ contract Ico is BasicToken {
    */
   function addNewDividends(uint256 profit) internal {
     uint256 newAum = aum.add(profit); // 18 sig digits
-    uint256 newTokenValue = newAum.mul(tokenPrecision).div(totalSupply); // 18 sig digits
-    uint256 totalDividends = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
+    tokenValue = newAum.mul(tokenPrecision).div(totalSupply); // 18 sig digits
+    uint256 totalDividends = profit.mul(tokenPrecision).div(tokenValue); // 18 sig digits
     uint256 managementDividends = totalDividends.div(managementFees); // 17 sig digits
     uint256 dividendsIssued = totalDividends.sub(managementDividends); // 18 sig digits
 
