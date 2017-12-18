@@ -153,7 +153,7 @@ contract Ico is BasicToken {
     // first we new dividends if this period was profitable
     if (totalProfit > 0) {
       // We only care about 50% of this, as the rest is reinvested right away
-      uint256 profit = totalProfit.mul(tokenPrecision).div(2);
+      uint256 profit = uint256(totalProfit).mul(tokenPrecision).div(2);
 
       // this will throw if there are not enough tokens
       addNewDividends(profit);
@@ -162,7 +162,7 @@ contract Ico is BasicToken {
     // then we drip
     drip(saleAddress);
     // adjust AUM
-    aum = aum.add(totalProfit.mul(tokenPrecision));
+    aum = aum.add(uint256(totalProfit).mul(tokenPrecision));
 
     return true;
   }
