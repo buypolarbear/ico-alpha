@@ -22,6 +22,8 @@ Stake in the LUNA fund will be managed through an ERC20 token, the underlying go
 - [x] Add function to burn tokens (will only be used by us when the fund buys all remaning "on sale "tokens)
   - [x] Burn
   - [x] Subtract from global token supply, aum and user balance
+- [ ] Register receiving address in contructor + migration (will be multi sig wallet)
+- [ ] Register sale address and create modifier that locks burn to that address.
 
 ## Deployment and testing
 
