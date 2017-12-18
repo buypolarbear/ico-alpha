@@ -51,6 +51,9 @@ contract Ico is BasicToken {
   // drip percent in 100 / percentage
   uint256 public dripRate = 50;
 
+  // current registred change address
+  address public currentSaleAddress;
+
   // custom events
   event Freeze(address indexed from, uint256 value);
   event Participate(address indexed from, uint256 value);
@@ -76,6 +79,9 @@ contract Ico is BasicToken {
     for (uint256 i = 0; i < teamNum; i++) {
       team[_team[i]] = true;
     }
+
+    // as a safety measure tempory set the sale address to something else than 0x0
+    currentSaleAddress = owner;
   }
 
   /**
@@ -88,6 +94,11 @@ contract Ico is BasicToken {
 
   modifier onlyTeam() {
     require (team[msg.sender] == true);
+    _;
+  }
+
+  modifier onlySaleAddress() {
+    require (msg.sender == currentSaleAddress);
     _;
   }
 
@@ -133,7 +144,7 @@ contract Ico is BasicToken {
    *
    * @param _amount is the amount of tokens to burn.
    */
-  function freeze(uint256 _amount) public onlyTeam returns (bool) {
+  function freeze(uint256 _amount) public onlySaleAddress returns (bool) {
     require(_amount <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
@@ -166,6 +177,9 @@ contract Ico is BasicToken {
     drip(saleAddress);
     // adjust AUM
     aum = aum.add(uint256(totalProfit).mul(tokenPrecision));
+
+    // register the sale address
+    currentSaleAddress = saleAddress;
 
     return true;
   }
