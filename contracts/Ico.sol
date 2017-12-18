@@ -149,7 +149,7 @@ contract Ico is BasicToken {
    * @param totalProfit is the amount of total profit in USD.
    */
   function reportProfit(int256 totalProfit, address saleAddress) public onlyTeam returns (bool) {
-    // then we only add new dividends if this period was profitable
+    // first we new dividends if this period was profitable
     if(totalProfit > 0) {
       // We only care about 50% of this, as the rest is reinvested right away
       uint256 profit = uint256(totalProfit).mul(tokenPrecision).div(2);
@@ -158,7 +158,7 @@ contract Ico is BasicToken {
       addNewDividends(profit);
     }
 
-    // first we drip
+    // then we drip
     drip(saleAddress);
 
     return true;
