@@ -37,7 +37,7 @@ contract Ico is BasicToken {
   mapping(address => uint256) lastDividend;
 
   // Management fees share express as 100/%: eg. 20% => 100/20 = 5
-  uint256 public constant managementFees = 20;
+  uint256 public constant managementFees = 10;
 
   // Assets under management in USD
   uint256 private aum = 0;
@@ -151,9 +151,9 @@ contract Ico is BasicToken {
    */
   function reportProfit(int256 totalProfit, address saleAddress) public onlyTeam returns (bool) {
     // first we new dividends if this period was profitable
-    if(totalProfit > 0) {
+    if (totalProfit > 0) {
       // We only care about 50% of this, as the rest is reinvested right away
-      uint256 profit = uint256(totalProfit).mul(tokenPrecision).div(2);
+      uint256 profit = totalProfit.mul(tokenPrecision).div(2);
 
       // this will throw if there are not enough tokens
       addNewDividends(profit);
@@ -162,7 +162,7 @@ contract Ico is BasicToken {
     // then we drip
     drip(saleAddress);
     // adjust AUM
-    aum = aum.add(profit);
+    aum = aum.add(totalProfit.mul(tokenPrecision));
 
     return true;
   }
@@ -180,11 +180,11 @@ contract Ico is BasicToken {
    * amounts (USD * tokenPrecision).
    */
   function addNewDividends(uint256 profit) internal {
-    uint256 newAum = aum.add(profit);
+    uint256 newAum = aum.add(profit); // 18 sig digits
     uint256 newTokenValue = newAum.mul(tokenPrecision).div(tokensIssued); // 18 sig digits
     uint256 totalDividends = profit.mul(tokenPrecision).div(newTokenValue); // 18 sig digits
-    uint256 managementDividends = totalDividends.div(managementFees);
-    uint256 dividendsIssued = totalDividends.sub(managementDividends);
+    uint256 managementDividends = totalDividends.div(managementFees); // 17 sig digits
+    uint256 dividendsIssued = totalDividends.sub(managementDividends); // 18 sig digits
 
     // make sure we have enough in the frozen fund
     require(tokensFrozen >= totalDividends);
@@ -212,7 +212,7 @@ contract Ico is BasicToken {
     // NOTE: the default return value of a mapping is 0 in this case
     uint idx = lastDividend[_owner];
     if (idx == dividendSnapshots.length) return 0;
-    if (balance == 0) return 0;
+    if (balance == 0 && team[_owner] != true) return 0;
 
     uint256 currBalance = balance;
     for (uint i = idx; i < dividendSnapshots.length; i++) {
