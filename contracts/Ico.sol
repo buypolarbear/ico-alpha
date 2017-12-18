@@ -52,7 +52,7 @@ contract Ico is BasicToken {
   uint256 public dripRate = 50;
 
   // custom events
-  event Burn(address indexed from, uint256 value);
+  event Freeze(address indexed from, uint256 value);
   event Participate(address indexed from, uint256 value);
   event ReconcileDividend(address indexed from, uint256 period, uint256 value);
 
@@ -133,7 +133,7 @@ contract Ico is BasicToken {
    *
    * @param _amount is the amount of tokens to burn.
    */
-  function burn(uint256 _amount) public onlyTeam returns (bool) {
+  function freeze(uint256 _amount) public onlyTeam returns (bool) {
     require(_amount <= balances[msg.sender]);
 
     // SafeMath.sub will throw if there is not enough balance.
@@ -143,7 +143,7 @@ contract Ico is BasicToken {
     uint256 tokenValue = aum.mul(tokenPrecision).div(totalSupply);
     aum = aum.sub(tokenValue.mul(_amount));
 
-    Burn(msg.sender, _amount);
+    Freeze(msg.sender, _amount);
     return true;
   }
 
@@ -176,6 +176,7 @@ contract Ico is BasicToken {
 
     tokensFrozen = tokensFrozen.sub(dripTokens);
     totalSupply = totalSupply.add(dripTokens);
+
     reconcileDividend(saleAddress);
     balances[saleAddress] = balances[saleAddress].add(dripTokens);
   }
