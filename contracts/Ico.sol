@@ -172,6 +172,8 @@ contract Ico is BasicToken {
     uint256 dripTokens = tokensFrozen.div(dripRate);
 
     tokensFrozen = tokensFrozen.sub(dripTokens);
+    tokensIssued = tokensIssued.add(dripTokens);
+    reconcileDividend(saleAddress);
     balances[saleAddress] = balances[saleAddress].add(dripTokens);
   }
 
