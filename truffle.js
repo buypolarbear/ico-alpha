@@ -18,7 +18,8 @@ module.exports = {
       port: 8545,
       network_id: "*",
       from: "0x00D2742eBa100cF29E1670A184f8F29A363c99f7", // Owner Account
-      gas: 4700036
+      gas: 4700036,
+      gasPrice: 30000000000
     }
   }
 };
