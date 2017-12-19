@@ -266,7 +266,7 @@ contract Ico is BasicToken {
 
   // monkey patches
   function balanceOf(address _owner) public view returns (uint256) {
-    var (owedDividend, dividends) = getOwedDividend(_owner);
+    var (owedDividend, /* dividends */) = getOwedDividend(_owner);
     return BasicToken.balanceOf(_owner).add(owedDividend);
   }
 
