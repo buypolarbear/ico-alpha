@@ -59,7 +59,7 @@ contract Ico is BasicToken {
   // custom events
   event Freeze(address indexed from, uint256 value);
   event Participate(address indexed from, uint256 value);
-  event ReconcileDividend(address indexed from, uint256 period, uint256 value);
+  event Reconcile(address indexed from, uint256 period, uint256 value);
 
   /**
    * ICO constructor
@@ -278,7 +278,7 @@ contract Ico is BasicToken {
 
     for (uint i = 0; i < dividends.length; i++) {
       if (dividends[i] > 0) {
-        ReconcileDividend(_owner, lastDividend[_owner] + i, dividends[i]);
+        Reconcile(_owner, lastDividend[_owner] + i, dividends[i]);
         Transfer(0x0, _owner, dividends[i]);
       }
     }
