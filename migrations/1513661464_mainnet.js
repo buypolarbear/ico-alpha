@@ -14,7 +14,7 @@ module.exports = function(deployer) {
   ];
 
   // this should be USD/ETH rate
-  const tokensPerEth = 1000;
+  const tokensPerEth = 800;
 
   deployer.deploy(Ico, start, end, team, tokensPerEth);
 }
