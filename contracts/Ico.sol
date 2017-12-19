@@ -272,7 +272,7 @@ contract Ico is BasicToken {
 
 
   // Reconcile all outstanding dividends for an address
-  // into it's balance.
+  // into its balance.
   function reconcileDividend(address _owner) internal {
     var (owedDividend, dividends) = getOwedDividend(_owner);
 
