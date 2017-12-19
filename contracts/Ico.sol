@@ -158,6 +158,7 @@ contract Ico is BasicToken {
     aum = aum.sub(tokenValue.mul(_amount).div(tokenPrecision));
 
     Freeze(msg.sender, _amount);
+    Transfer(msg.sender, 0x0, _amount);
     return true;
   }
 
@@ -198,6 +199,7 @@ contract Ico is BasicToken {
 
     reconcileDividend(saleAddress);
     balances[saleAddress] = balances[saleAddress].add(dripTokens);
+    Transfer(0x0, saleAddress, dripTokens);
   }
 
   /**
@@ -254,7 +256,6 @@ contract Ico is BasicToken {
 
       total = total.add(dividend);
 
-      // If we can emit, broadcast ReconcileDividend event
       dividends[i - idx] = dividend;
 
       currBalance = currBalance.add(dividend);
@@ -278,6 +279,7 @@ contract Ico is BasicToken {
     for (uint i = 0; i < dividends.length; i++) {
       if (dividends[i] > 0) {
         ReconcileDividend(_owner, lastDividend[_owner] + i, dividends[i]);
+        Transfer(0x0, _owner, dividends[i]);
       }
     }
 
