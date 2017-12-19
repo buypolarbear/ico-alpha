@@ -18,7 +18,7 @@ contract Ico is BasicToken {
 
   // TODO: set this final, this equates to an amount
   // in dollars.
-  uint256 public constant hardCap = 17000 * tokenPrecision;
+  uint256 public constant hardCap = 32000 * tokenPrecision;
 
   // Tokens frozen supply
   uint256 public tokensFrozen = 0;
