@@ -1,10 +1,10 @@
 # Ploutos Capital ICO: LUNA
 
-LUNA is a fund that provides a diversified exposure to the crypto market. On top of that we will use a part of the fund as liquidity for low risk automated trading (such as arbitrage, market making, peer-2-peer lending).
+LUNA is a fund that provides a diversified exposure to the crypto market. On top of that it uses part of the fund as liquidity for low risk automated trading (such as arbitrage, market making, peer-2-peer lending).
 
 A detailed description of the inner workings of the fund can be found in this [Google Document](https://docs.google.com/document/d/1jeSXiOAseB7f980nNuey3_1b7SlJq0UknJzW--qYJWA/edit?usp=sharing).
 
-Stake in the LUNA fund will be managed through an ERC20 token, the underlying governing smart contract is stored in this repo (github.com/ploutos-capital/ico-alpha) ([contracts/Ico.sol](https://github.com/ploutos-capital/ico-alpha/blob/master/contracts/Ico.sol)).
+Stake in the LUNA fund is managed through an ERC20 token, the underlying governing smart contract is stored in this repo (github.com/ploutos-capital/ico-alpha) ([contracts/Ico.sol](https://github.com/ploutos-capital/ico-alpha/blob/master/contracts/Ico.sol)).
 
 ## Smart contract TODO
 
@@ -33,7 +33,7 @@ Stake in the LUNA fund will be managed through an ERC20 token, the underlying go
   - [x] Basic functionality
   - [x] Dividend calculations
   - [x] Security
-- [ ] Launch contract on main net
+- [X] Launch contract on main net
 
 ## Install development environment
 
