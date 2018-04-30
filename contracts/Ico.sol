@@ -181,7 +181,11 @@ contract Ico is BasicToken {
     drip(saleAddress);
 
     // adjust AUM
-    aum = aum.add(uint256(totalProfit).mul(tokenPrecision));
+    if (totalProfit > 0) {
+      aum = aum.add(uint256(totalProfit).mul(tokenPrecision));
+    } else if (totalProfit < 0) {
+      aum = aum.add(uint256(-totalProfit).mul(tokenPrecision));
+    }
 
     // register the sale address
     currentSaleAddress = saleAddress;

@@ -4,7 +4,7 @@ const Ico = artifacts.require('Ico')
 module.exports = function(deployer) {
 
   const start = 1513663200; // Dec 19th 2017 6:00:00 GMT
-  const end = 1513836000; // // Dec 21th 2017 6:00:00 GMT
+  const end = 1513836000; // Dec 21th 2017 6:00:00 GMT
 
   const team = [
     '0xFE01b3b2E5693EdA712104555620742c87d6CA90', // Ante
