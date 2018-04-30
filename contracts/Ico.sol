@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.23;
 
 import 'zeppelin-solidity/contracts/token/BasicToken.sol';
 
@@ -65,7 +65,7 @@ contract Ico is BasicToken {
    * ICO constructor
    * Define ICO details and contribution period
    */
-  function Ico(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) public {
+  constructor(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) public {
     // require (_icoStart >= now);
     require (_icoEnd >= _icoStart);
     require (_tokensPerEth > 0);
@@ -128,9 +128,9 @@ contract Ico is BasicToken {
 
     owner.transfer(ethAmount);
     // Our own custom event to monitor ICO participation
-    Participate(beneficiary, numTokens);
+    emit Participate(beneficiary, numTokens);
     // Let ERC20 tools know of token hodlers
-    Transfer(0x0, beneficiary, numTokens);
+    emit Transfer(0x0, beneficiary, numTokens);
   }
 
   /**
@@ -157,8 +157,8 @@ contract Ico is BasicToken {
 
     aum = aum.sub(tokenValue.mul(_amount).div(tokenPrecision));
 
-    Freeze(msg.sender, _amount);
-    Transfer(msg.sender, 0x0, _amount);
+    emit Freeze(msg.sender, _amount);
+    emit Transfer(msg.sender, 0x0, _amount);
     return true;
   }
 
@@ -199,7 +199,7 @@ contract Ico is BasicToken {
 
     reconcileDividend(saleAddress);
     balances[saleAddress] = balances[saleAddress].add(dripTokens);
-    Transfer(0x0, saleAddress, dripTokens);
+    emit Transfer(0x0, saleAddress, dripTokens);
   }
 
   /**
@@ -266,7 +266,8 @@ contract Ico is BasicToken {
 
   // monkey patches
   function balanceOf(address _owner) public view returns (uint256) {
-    var (owedDividend, /* dividends */) = getOwedDividend(_owner);
+    uint256 owedDividend;
+    (owedDividend,) = getOwedDividend(_owner);
     return BasicToken.balanceOf(_owner).add(owedDividend);
   }
 
@@ -274,12 +275,14 @@ contract Ico is BasicToken {
   // Reconcile all outstanding dividends for an address
   // into its balance.
   function reconcileDividend(address _owner) internal {
-    var (owedDividend, dividends) = getOwedDividend(_owner);
+    uint256 owedDividend;
+    uint256[] memory dividends;
+    (owedDividend, dividends) = getOwedDividend(_owner);
 
     for (uint i = 0; i < dividends.length; i++) {
       if (dividends[i] > 0) {
-        Reconcile(_owner, lastDividend[_owner] + i, dividends[i]);
-        Transfer(0x0, _owner, dividends[i]);
+        emit Reconcile(_owner, lastDividend[_owner] + i, dividends[i]);
+        emit Transfer(0x0, _owner, dividends[i]);
       }
     }
 
