@@ -43,6 +43,9 @@ contract Ico is BasicToken {
   // Assets under management in USD
   uint256 public aum = 0;
 
+  // Amount of tokens in circulation
+  uint256 public totalSupply = 0;
+
   // drip percent in 100 / percentage
   uint256 public dripRate = 50;
 
@@ -57,8 +60,19 @@ contract Ico is BasicToken {
    * ICO constructor
    * Define ICO details and contribution period
    */
-  constructor(uint256 _icoStart, uint256 _icoEnd, address[] _team) public {
+  constructor(uint256 _icoStart, uint256 _icoEnd, address[] _team, address[] shareholders, uint256[] shares, uint256 _aum, uint256 _tokensFrozen) public {
     owner = msg.sender;
+
+    // reset from old contract
+    aum = _aum;
+    tokensFrozen = _tokensFrozen;
+
+    shareholderNum = shareholders.length;
+    for (uint256 i = 0; i < shareholderNum; i++) {
+      balances[shareholders[i]] = shares[i];
+      totalSupply = totalSupply.add(shares[i]);
+      emit Transfer(0x0, shareholders[i], shares[i]);
+    }
 
     // initialize the team mapping with true when part of the team
     teamNum = _team.length;
