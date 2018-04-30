@@ -43,13 +43,6 @@ contract Ico is BasicToken {
   // Assets under management in USD
   uint256 public aum = 0;
 
-  // number of tokens investors will receive per eth invested
-  uint256 public tokensPerEth;
-
-  // Ico start/end timestamps, between which (inclusively) investments are accepted
-  uint public icoStart;
-  uint public icoEnd;
-
   // drip percent in 100 / percentage
   uint256 public dripRate = 50;
 
@@ -58,23 +51,14 @@ contract Ico is BasicToken {
 
   // custom events
   event Freeze(address indexed from, uint256 value);
-  event Participate(address indexed from, uint256 value);
   event Reconcile(address indexed from, uint256 period, uint256 value);
 
   /**
    * ICO constructor
    * Define ICO details and contribution period
    */
-  constructor(uint256 _icoStart, uint256 _icoEnd, address[] _team, uint256 _tokensPerEth) public {
-    // require (_icoStart >= now);
-    require (_icoEnd >= _icoStart);
-    require (_tokensPerEth > 0);
-
+  constructor(uint256 _icoStart, uint256 _icoEnd, address[] _team) public {
     owner = msg.sender;
-
-    icoStart = _icoStart;
-    icoEnd = _icoEnd;
-    tokensPerEth = _tokensPerEth;
 
     // initialize the team mapping with true when part of the team
     teamNum = _team.length;
@@ -102,43 +86,6 @@ contract Ico is BasicToken {
   modifier onlySaleAddress() {
     require (msg.sender == currentSaleAddress);
     _;
-  }
-
-  /**
-   *
-   * Function allowing investors to participate in the ICO.
-   * Specifying the beneficiary will change who will receive the tokens.
-   * Fund tokens will be distributed based on amount of ETH sent by investor, and calculated
-   * using tokensPerEth value.
-   */
-  function participate(address beneficiary) public payable {
-    require (beneficiary != address(0));
-    require (now >= icoStart && now <= icoEnd);
-    require (msg.value > 0);
-
-    uint256 ethAmount = msg.value;
-    uint256 numTokens = ethAmount.mul(tokensPerEth);
-
-    require(totalSupply.add(numTokens) <= hardCap);
-
-    balances[beneficiary] = balances[beneficiary].add(numTokens);
-    totalSupply = totalSupply.add(numTokens);
-    tokensFrozen = totalSupply * 2;
-    aum = totalSupply;
-
-    owner.transfer(ethAmount);
-    // Our own custom event to monitor ICO participation
-    emit Participate(beneficiary, numTokens);
-    // Let ERC20 tools know of token hodlers
-    emit Transfer(0x0, beneficiary, numTokens);
-  }
-
-  /**
-   *
-   * We fallback to the partcipate function
-   */
-  function () external payable {
-     participate(msg.sender);
   }
 
   /**
