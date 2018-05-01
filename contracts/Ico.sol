@@ -57,17 +57,17 @@ contract Ico is BasicToken {
   event Reconcile(address indexed from, uint256 period, uint256 value);
 
   /**
-   * ICO constructor
-   * Define ICO details and contribution period
+   * Luna constructor
+   * Define Luna details and contribution period
    */
-  constructor(uint256 _icoStart, uint256 _icoEnd, address[] _team, address[] shareholders, uint256[] shares, uint256 _aum, uint256 _tokensFrozen) public {
+  constructor(address[] _team, address[] shareholders, uint256[] shares, uint256 _aum, uint256 _tokensFrozen) public {
     owner = msg.sender;
 
     // reset from old contract
     aum = _aum;
     tokensFrozen = _tokensFrozen;
 
-    shareholderNum = shareholders.length;
+    uint256 shareholderNum = shareholders.length;
     for (uint256 i = 0; i < shareholderNum; i++) {
       balances[shareholders[i]] = shares[i];
       totalSupply = totalSupply.add(shares[i]);
@@ -76,7 +76,7 @@ contract Ico is BasicToken {
 
     // initialize the team mapping with true when part of the team
     teamNum = _team.length;
-    for (uint256 i = 0; i < teamNum; i++) {
+    for (i = 0; i < teamNum; i++) {
       team[_team[i]] = true;
     }
 
