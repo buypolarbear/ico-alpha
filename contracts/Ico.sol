@@ -147,7 +147,7 @@ contract Ico is BasicToken {
     if (totalProfit > 0) {
       aum = aum.add(uint256(totalProfit).mul(tokenPrecision));
     } else if (totalProfit < 0) {
-      aum = aum.add(uint256(-totalProfit).mul(tokenPrecision));
+      aum = aum.sub(uint256(-totalProfit).mul(tokenPrecision));
     }
 
     // register the sale address
