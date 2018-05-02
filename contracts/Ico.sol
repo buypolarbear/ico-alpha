@@ -128,7 +128,7 @@ contract Ico is BasicToken {
    *
    * @param totalProfit is the amount of total profit in USD.
    */
-  function reportProfit(int256 totalProfit, bool drip, address saleAddress) public onlyTeam returns (bool) {
+  function reportProfit(int256 totalProfit, bool shouldDrip, address saleAddress) public onlyTeam returns (bool) {
     // first we new dividends if this period was profitable
     if (totalProfit > 0) {
       // We only care about 50% of this, as the rest is reinvested right away
@@ -138,9 +138,9 @@ contract Ico is BasicToken {
       addNewDividends(profit);
     }
 
-    if(drip) {
+    if (shouldDrip) {
       // then we drip
-      performDrip(saleAddress);
+      drip(saleAddress);
     }
 
     // adjust AUM
@@ -157,7 +157,7 @@ contract Ico is BasicToken {
   }
 
 
-  function performDrip(address saleAddress) internal {
+  function drip(address saleAddress) internal {
     uint256 dripTokens = tokensFrozen.div(dripRate);
 
     tokensFrozen = tokensFrozen.sub(dripTokens);
