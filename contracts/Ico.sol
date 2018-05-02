@@ -140,7 +140,7 @@ contract Ico is BasicToken {
 
     if(drip) {
       // then we drip
-      drip(saleAddress);
+      performDrip(saleAddress);
     }
 
     // adjust AUM
@@ -157,7 +157,7 @@ contract Ico is BasicToken {
   }
 
 
-  function drip(address saleAddress) internal {
+  function performDrip(address saleAddress) internal {
     uint256 dripTokens = tokensFrozen.div(dripRate);
 
     tokensFrozen = tokensFrozen.sub(dripTokens);
