@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import 'zeppelin-solidity/contracts/token/BasicToken.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/BasicToken.sol';
 
 // NOTE: BasicToken only has partial ERC20 support
 contract Ico is BasicToken {
