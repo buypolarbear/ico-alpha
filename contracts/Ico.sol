@@ -16,10 +16,6 @@ contract Ico is BasicToken {
   // Significant digits tokenPrecision
   uint256 private constant tokenPrecision = 10e17;
 
-  // TODO: set this final, this equates to an amount
-  // in dollars.
-  uint256 public constant hardCap = 32000 * tokenPrecision;
-
   // Tokens frozen supply
   uint256 public tokensFrozen = 0;
 
@@ -60,12 +56,13 @@ contract Ico is BasicToken {
    * Luna constructor
    * Define Luna details and contribution period
    */
-  constructor(address[] _team, address[] shareholders, uint256[] shares, uint256 _aum, uint256 _tokensFrozen) public {
+  constructor(address[] _team, address[] shareholders, uint256[] shares, uint256 _aum, uint256 _tokensFrozen, uint256 _totalSupply) public {
     owner = msg.sender;
 
     // reset from old contract
     aum = _aum;
     tokensFrozen = _tokensFrozen;
+    totalSupply = _totalSupply;
 
     uint256 shareholderNum = shareholders.length;
     for (uint256 i = 0; i < shareholderNum; i++) {
