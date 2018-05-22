@@ -194,6 +194,15 @@ contract Ico is BasicToken {
     selfdestruct(owner);
   }
 
+  /**
+   * Manually update AUM, need (for example) when the drip was sold
+   * for anything other than NAV.
+   */
+  function setAUM(uint256 _aum) public onlyTeam returns (bool) {
+    aum = _aum;
+    return true;
+  }
+
 
   // getter to retrieve divident owed
   function getOwedDividend(address _owner) public view returns (uint256 total, uint256[]) {
