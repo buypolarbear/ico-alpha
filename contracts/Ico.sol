@@ -56,13 +56,12 @@ contract Ico is BasicToken {
    * Luna constructor
    * Define Luna details and contribution period
    */
-  constructor(address[] _team, address[] shareholders, uint256[] shares, uint256 _aum, uint256 _tokensFrozen, uint256 _totalSupply) public {
+  constructor(address[] _team, address[] shareholders, uint256[] shares, uint256 _aum, uint256 _tokensFrozen) public {
     owner = msg.sender;
 
     // reset from old contract
     aum = _aum;
     tokensFrozen = _tokensFrozen;
-    totalSupply = _totalSupply;
 
     uint256 shareholderNum = shareholders.length;
     for (uint256 i = 0; i < shareholderNum; i++) {
